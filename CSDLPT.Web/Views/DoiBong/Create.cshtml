@@ -1,0 +1,100 @@
+﻿@model CSDLPT.Web.Models.DoiBong
+@{
+    ViewData["Title"] = "Thêm đội bóng";
+}
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label class="form-label">Mã DB</label>
+        <input asp-for="MaDB" class="form-control" id="MaDB" />
+        <div class="form-text" id="prefixHelp">Chọn CLB để hiển thị quy ước tiền tố.</div>
+        <span asp-validation-for="MaDB" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">CLB (CLB1/CLB2/CLB3)</label>
+        <select asp-for="CLB" class="form-select" id="CLB">
+            <option value="">-- Chọn CLB --</option>
+            <option>CLB1</option>
+            <option>CLB2</option>
+            <option>CLB3</option>
+        </select>
+        <span asp-validation-for="CLB" class="text-danger"></span>
+    </div>
+
+    @section Scripts{
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            (function () {
+              const $clb = document.getElementById('CLB');
+              const $ma  = document.getElementById('MaDB');
+              const $hint= document.getElementById('prefixHelp');
+
+              function expectedPrefix(clb){
+                if (clb === 'CLB1') return 'A_';
+                if (clb === 'CLB2') return 'B_';
+                if (clb === 'CLB3') return 'C_';
+                return null;
+              }
+
+              function applyPattern(){
+                const p = expectedPrefix($clb.value);
+                if (p){
+                  // HTML5 pattern: bắt đầu bằng tiền tố và có thêm ít nhất 1 ký tự phía sau
+                  $ma.setAttribute('pattern', '^' + p.replace('_','_') + '.+');
+                  $ma.setAttribute('title', 'MaDB phải bắt đầu bằng "' + p + '".');
+                  $hint.textContent = 'Quy ước: ' + p + '... (theo ' + $clb.value + ')';
+                } else {
+                  $ma.removeAttribute('pattern');
+                  $ma.removeAttribute('title');
+                  $hint.textContent = 'Chọn CLB để hiển thị quy ước tiền tố.';
+                }
+              }
+
+              $clb.addEventListener('change', applyPattern);
+              applyPattern(); // khởi tạo khi vào trang
+            })();
+        </script>
+    }
+
+
+    <div class="mb-3">
+        <label class="form-label">Tên đội</label>
+        <input asp-for="TenDB" class="form-control" />
+        <span asp-validation-for="TenDB" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mã sân</label>
+        <input asp-for="MaSan" class="form-control" />
+        <span asp-validation-for="MaSan" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">HLV</label>
+        <input asp-for="HLV" class="form-control" />
+        <span asp-validation-for="HLV" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">CLB (CLB1/CLB2/CLB3)</label>
+        <select asp-for="CLB" class="form-select">
+            <option value="">-- Chọn CLB --</option>
+            <option>CLB1</option>
+            <option>CLB2</option>
+            <option>CLB3</option>
+        </select>
+        <span asp-validation-for="CLB" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-action="Index" class="btn btn-link">Hủy</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,50 @@
+﻿@model CSDLPT.Web.Models.DoiBong
+@{
+    ViewData["Title"] = "Sửa đội bóng";
+}
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- KHÓA: MaDB (không đổi) -->
+    <input type="hidden" asp-for="MaDB" />
+    <div class="mb-3">
+        <label class="form-label">Mã DB</label>
+        <input class="form-control" value="@Model.MaDB" disabled />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tên đội</label>
+        <input asp-for="TenDB" class="form-control" />
+        <span asp-validation-for="TenDB" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mã sân</label>
+        <input asp-for="MaSan" class="form-control" />
+        <span asp-validation-for="MaSan" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">HLV</label>
+        <input asp-for="HLV" class="form-control" />
+        <span asp-validation-for="HLV" class="text-danger"></span>
+    </div>
+
+    <!-- KHÓA ĐỊNH TUYẾN: CLB (KHÔNG cho đổi) -->
+    <input type="hidden" asp-for="CLB" />
+    <div class="mb-3">
+        <label class="form-label">CLB</label>
+        <input class="form-control" value="@Model.CLB" disabled />
+        <div class="form-text">Không được đổi CLB (quy tắc sở hữu/định tuyến).</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a asp-action="Index" class="btn btn-link">Hủy</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

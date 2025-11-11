@@ -1,0 +1,30 @@
+﻿@model CSDLPT.Web.Models.DoiBong
+@{
+    ViewData["Title"] = "Xóa đội bóng";
+}
+<h2>@ViewData["Title"]</h2>
+
+<h5>Bạn chắc chắn muốn xóa đội bóng này?</h5>
+
+<div class="mb-3">
+    <strong>Mã DB:</strong> @Model.MaDB
+</div>
+<div class="mb-3">
+    <strong>Tên đội:</strong> @Model.TenDB
+</div>
+<div class="mb-3">
+    <strong>Mã sân:</strong> @Model.MaSan
+</div>
+<div class="mb-3">
+    <strong>HLV:</strong> @Model.HLV
+</div>
+<div class="mb-3">
+    <strong>CLB:</strong> @Model.CLB
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="MaDB" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-action="Index" class="btn btn-link">Hủy</a>
+</form>
