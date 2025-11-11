@@ -1,19 +1,41 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CSDLPT.Web.Models;
+﻿using CSDLPT.Web.Models;
+using CSDLPT.Web.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 public sealed class DoiBongController : Controller
 {
     private readonly IDoiBongRepo _repo;
     public DoiBongController(IDoiBongRepo repo) => _repo = repo;
 
-    // GET: /DoiBong
-    public async Task<IActionResult> Index()
+    // --- HÀM INDEX (ĐÃ CHUẨN - Giữ nguyên) ---
+    public async Task<IActionResult> Index(bool showGlobal = false)
     {
-        var items = await _repo.GetAllAsync();
-        return View(items);
+        IEnumerable<DoiBong> doiBongs;
+
+        try
+        {
+            doiBongs = await _repo.GetAllAsync(showGlobal);
+        }
+        catch (SqlException ex) when (showGlobal && IsNetworkError(ex))
+        {
+            TempData["ErrorMessage"] = $"Không thể tải dữ liệu toàn cục. Lỗi kết nối: {ex.Message}. Đang hiển thị dữ liệu cục bộ.";
+            doiBongs = await _repo.GetAllAsync(isGlobal: false);
+            showGlobal = false;
+        }
+
+        ViewData["IsGlobalView"] = showGlobal;
+        return View(doiBongs);
     }
 
+    private bool IsNetworkError(SqlException ex)
+    {
+        return ex.Number == 53 || ex.Number == -2 || ex.Number == 7391;
+    }
+
+    // --- HÀM CREATE (ĐÃ CHUẨN - Giữ nguyên) ---
     // GET: /DoiBong/Create
     public IActionResult Create() => View();
 
@@ -22,11 +44,10 @@ public sealed class DoiBongController : Controller
     public async Task<IActionResult> Create(DoiBong vm)
     {
         if (!ModelState.IsValid) return View(vm);
-
         try
         {
             await _repo.CreateAsync(vm); // Write → Coord → Trigger RPC → SP mảnh
-            TempData["ok"] = "Tạo đội bóng thành công.";
+            TempData["SuccessMessage"] = "Tạo đội bóng thành công."; // Đổi tên TempData
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
@@ -37,23 +58,26 @@ public sealed class DoiBongController : Controller
     }
 
     // GET: /DoiBong/Edit?id=TSST&clb=CLB1
-    public async Task<IActionResult> Edit(string id, string clb)
+    public async Task<IActionResult> Edit(string id, string clb) 
     {
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(clb)) return NotFound();
-        var x = await _repo.FindAsync(id, clb);
+        if (string.IsNullOrWhiteSpace(id)) return NotFound();
+            var x = await _repo.GetByIdAsync(id); 
         if (x is null) return NotFound();
         return View(x);
     }
 
+    // POST: /DoiBong/Edit/A_DB01
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, string clb, DoiBong vm)
+    public async Task<IActionResult> Edit(string id, DoiBong vm) // Bỏ 'clb'
     {
-        if (id != vm.MaDB || clb != vm.CLB) return BadRequest();
+        // Chỉ kiểm tra 'id' với 'vm.MaDB'
+        if (id != vm.MaDB) return BadRequest();
+
         if (!ModelState.IsValid) return View(vm);
         try
         {
             await _repo.UpdateAsync(vm);
-            TempData["ok"] = "Cập nhật đội bóng thành công.";
+            TempData["SuccessMessage"] = "Cập nhật đội bóng thành công.";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
@@ -63,17 +87,20 @@ public sealed class DoiBongController : Controller
         }
     }
 
+    // --- CẬP NHẬT HÀM DELETE ---
+    // GET: /DoiBong/Delete/A_DB01
     // Delete tương tự
     public async Task<IActionResult> Delete(string id, string clb)
     {
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(clb)) return NotFound();
-        var x = await _repo.FindAsync(id, clb);
+        if (string.IsNullOrWhiteSpace(id)) return NotFound();
+       
+        var x = await _repo.GetByIdAsync(id);
         if (x is null) return NotFound();
         return View(x);
     }
-
+    // POST: /DoiBong/Delete/A_DB01
     [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id, string clb)
+    public async Task<IActionResult> DeleteConfirmed(string id, string clb) 
     {
         try
         {
@@ -84,9 +111,17 @@ public sealed class DoiBongController : Controller
         catch (Exception ex)
         {
             ModelState.AddModelError("", "Không thể xóa: " + ex.Message);
-            var x = await _repo.FindAsync(id, clb);
+            var x = await _repo.GetByIdAsync(id);
             return View("Delete", x);
         }
     }
 
+    // (Hàm Details nếu có - Tương tự Edit/Delete)
+    public async Task<IActionResult> Details(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return NotFound();
+        var x = await _repo.GetByIdAsync(id);
+        if (x is null) return NotFound();
+        return View(x);
+    }
 }

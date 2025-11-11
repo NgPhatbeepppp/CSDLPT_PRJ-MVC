@@ -11,6 +11,8 @@ namespace CSDLPT.Web.Models
         [MaxLength(100)] public string? HLV { get; set; }
         [Required, MaxLength(10)] public string CLB { get; set; } = "";
 
+        [Display(Name = "Node")]
+        public string? Node { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext _)
         {
             string? expectedPrefix = CLB switch

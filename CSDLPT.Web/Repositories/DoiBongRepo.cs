@@ -3,17 +3,22 @@ using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Configuration;
 namespace CSDLPT.Web.Repositories
 {
     public class DoiBongRepo : IDoiBongRepo
     {
         private readonly IDbConnectionFactory _connectionFactory;
+        private readonly string _localNode; // [THÊM VÀO] 2. Biến lưu tên Node
 
-        // 1. DbConnectionFactory đã được tiêm (inject) vào (nhờ Program.cs)
-        public DoiBongRepo(IDbConnectionFactory connectionFactory)
+        // [SỬA LẠI] 3. Cập nhật Constructor để tiêm IConfiguration
+        public DoiBongRepo(IDbConnectionFactory connectionFactory, IConfiguration configuration)
         {
             _connectionFactory = connectionFactory;
+
+            // Đọc tên Node từ appsettings.json (Bước 2)
+            // Nếu không tìm thấy, mặc định là "UNK" (Unknown)
+            _localNode = configuration.GetValue<string>("SiteConfig:Node") ?? "UNK";
         }
 
         // 2. === CẬP NHẬT HÀM GETALLASYNC ===
@@ -25,9 +30,10 @@ namespace CSDLPT.Web.Repositories
                 // Dùng kết nối Coordinator
                 using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
                 {
-                    // Truy vấn vào VIEW TOÀN CỤC (v_DOIBONG từ Giai đoạn 4)
+                    // Truy vấn vào VIEW TOÀN CỤC (đã tạo ở Bước 1)
                     const string sqlGlobal = "SELECT * FROM dbo.v_DOIBONG ORDER BY TenDB";
-                    // Lỗi (ví dụ: timeout) sẽ tự động ném ra để Controller bắt
+
+                    // Lỗi sẽ tự ném ra nếu Bước 1 chưa chạy
                     return await connection.QueryAsync<DoiBong>(sqlGlobal);
                 }
             }
@@ -37,23 +43,25 @@ namespace CSDLPT.Web.Repositories
                 // Dùng kết nối Local Fragment
                 using (var connection = _connectionFactory.CreateConnection(ConnectionType.ReadLocalFragment))
                 {
-                    // Truy vấn thẳng vào BẢNG MẢNH CỤC BỘ
-                    // Thêm cột 'Node' để UI biết đây là dữ liệu cục bộ
-                    const string sqlLocal = "SELECT *, 'C' AS Node FROM dbo.DOIBONG_C ORDER BY TenDB";
+                    // [SỬA LẠI] 4. Sửa 2 lỗi:
+                    // 1. Dùng tên bảng đúng là 'dbo.DOIBONG' (theo file ...DDL_v3.sql)
+                    // 2. Dùng biến '_localNode' thay vì hardcode 'C'
+                    var sqlLocal = $"SELECT *, '{_localNode}' AS Node FROM dbo.DOIBONG ORDER BY TenDB";
+
                     return await connection.QueryAsync<DoiBong>(sqlLocal);
                 }
             }
         }
 
-        // 3. === CẬP NHẬT CÁC HÀM GHI (WRITE OPERATIONS) ===
-        // Các hàm này BẮT BUỘC phải dùng kết nối Coordinator và VIEW TOÀN CỤC
+        // 3. === CÁC HÀM GHI (WRITE OPERATIONS) ===
+        // Các hàm này (Create, Update, Delete) đã đúng logic.
+        // Chúng chỉ thất bại trước đó vì View 'v_DOIBONG' (ở Bước 1) chưa tồn tại.
+        // Chúng ta không cần sửa C# ở đây.
 
         public async Task<int> CreateAsync(DoiBong doiBong)
         {
-            // Luôn dùng kết nối Coordinator để kích hoạt RPC
             using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
             {
-                // Luôn GHI vào VIEW TOÀN CỤC
                 const string sql = @"
                     INSERT INTO dbo.v_DOIBONG (MaDB, TenDB, CLB)
                     VALUES (@MaDB, @TenDB, @CLB);";
@@ -63,10 +71,8 @@ namespace CSDLPT.Web.Repositories
 
         public async Task<int> UpdateAsync(DoiBong doiBong)
         {
-            // Luôn dùng kết nối Coordinator
             using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
             {
-                // Luôn UPDATE trên VIEW TOÀN CỤC
                 const string sql = @"
                     UPDATE dbo.v_DOIBONG
                     SET TenDB = @TenDB, CLB = @CLB
@@ -77,24 +83,19 @@ namespace CSDLPT.Web.Repositories
 
         public async Task<int> DeleteAsync(string id)
         {
-            // Luôn dùng kết nối Coordinator
             using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
             {
-                // Luôn DELETE trên VIEW TOÀN CỤC
                 const string sql = "DELETE FROM dbo.v_DOIBONG WHERE MaDB = @MaDB;";
                 return await connection.ExecuteAsync(sql, new { MaDB = id });
             }
         }
 
-        // 4. === CẬP NHẬT HÀM GETBYID (DÙNG CHO EDIT/DELETE) ===
-        // Hàm này nên đọc từ View Toàn Cục để đảm bảo lấy đúng dữ liệu
-        // (ngay cả khi item đó thuộc Node A hoặc B)
+        // 4. === HÀM GETBYID ===
+        // Hàm này cũng đã đúng logic, không cần sửa C#.
         public async Task<DoiBong> GetByIdAsync(string id)
         {
-            // Dùng kết nối Coordinator
             using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
             {
-                // Truy vấn VIEW TOÀN CỤC
                 const string sql = "SELECT * FROM dbo.v_DOIBONG WHERE MaDB = @MaDB;";
                 return await connection.QuerySingleOrDefaultAsync<DoiBong>(sql, new { MaDB = id });
             }

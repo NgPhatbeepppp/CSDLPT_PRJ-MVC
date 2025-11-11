@@ -1,44 +1,84 @@
-﻿@model IEnumerable<CSDLPT.Web.Models.DoiBong>
-@{
-    ViewData["Title"] = "Đội bóng";
-}
-<h2>@ViewData["Title"]</h2>
+﻿@* Cần khai báo Model *@
+@model IEnumerable<CSDLPT.Web.Models.DoiBong>
 
-@if (TempData["ok"] is string ok)
+@{
+    ViewData["Title"] = "Danh sách Đội bóng";
+
+    // 1. Đọc trạng thái (local/global) từ Controller
+    bool isGlobalView = (ViewData["IsGlobalView"] as bool?) ?? false;
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-success">@ok</div>
+    <div class="alert alert-warning" role="alert">
+        <strong>Lỗi kết nối!</strong> @TempData["ErrorMessage"]
+    </div>
 }
 
 <p>
-    <a class="btn btn-primary" asp-action="Create">+ Thêm đội bóng</a>
+    <a asp-action="Create">Tạo mới Đội bóng</a>
 </p>
 
-<table class="table table-striped">
+<div class="mb-3">
+    @if (isGlobalView)
+    {
+        <span class="alert alert-info p-2" role="alert">
+            <strong>Chế độ xem:</strong> Toàn cục (Tất cả Node)
+        </span>
+        <a asp-action="Index" asp-route-showGlobal="false" class="btn btn-outline-secondary ml-2">
+            Xem Dữ liệu Cục bộ (Node C)
+        </a>
+    }
+    else
+    {
+        <span class="alert alert-success p-2" role="alert">
+            <strong>Chế độ xem:</strong> Cục bộ (Node C - Mặc định)
+        </span>
+        <a asp-action="Index" asp-route-showGlobal="true" class="btn btn-primary ml-2">
+            Tải Dữ liệu Toàn cục
+        </a>
+    }
+</div>
+
+
+<table class="table">
     <thead>
         <tr>
-            <th>Mã DB</th>
-            <th>Tên đội</th>
-            <th>Mã sân</th>
-            <th>HLV</th>
+            <th>Mã Đội Bóng</th>
+            <th>Tên Đội Bóng</th>
             <th>CLB</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Node)
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var x in Model)
+        @foreach (var item in Model)
         {
             <tr>
-                <td>@x.MaDB</td>
-                <td>@x.TenDB</td>
-                <td>@x.MaSan</td>
-                <td>@x.HLV</td>
-                <td>@x.CLB</td>
-                <td class="text-nowrap">
-                    <a class="btn btn-sm btn-outline-secondary"
-                       asp-action="Edit" asp-route-id="@x.MaDB" asp-route-clb="@x.CLB">Sửa</a>
-                    <a class="btn btn-sm btn-outline-danger"
-                       asp-action="Delete" asp-route-id="@x.MaDB" asp-route-clb="@x.CLB">Xóa</a>
-
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaDB)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenDB)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CLB)
+                </td>
+                <td>
+                    @* Cột này rất quan trọng: 
+                   - Khi ở chế độ Cục bộ, nó sẽ hiện 'C' (từ Bước 2).
+                   - Khi ở chế độ Toàn cục, nó sẽ hiện 'A', 'B', 'C' (từ View v_DOIBONG).
+                *@
+                    @Html.DisplayFor(modelItem => item.Node)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MaDB">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.MaDB">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MaDB">Delete</a>
                 </td>
             </tr>
         }
