@@ -18,6 +18,7 @@
     <div class="mb-3">
         <label class="form-label">CLB (CLB1/CLB2/CLB3)</label>
         <select asp-for="CLB" class="form-select" id="CLB">
+
             <option value="">-- Chọn CLB --</option>
             <option>CLB1</option>
             <option>CLB2</option>
@@ -26,9 +27,13 @@
         <span asp-validation-for="CLB" class="text-danger"></span>
     </div>
 
+  
     @section Scripts{
         <partial name="_ValidationScriptsPartial" />
+        @* (Nội dung của partial này đến từ file _ValidationScriptsPartial.cshtml) *@
+
         <script>
+
             (function () {
               const $clb = document.getElementById('CLB');
               const $ma  = document.getElementById('MaDB');
@@ -62,6 +67,7 @@
     }
 
 
+
     <div class="mb-3">
         <label class="form-label">Tên đội</label>
         <input asp-for="TenDB" class="form-control" />
@@ -76,25 +82,14 @@
 
     <div class="mb-3">
         <label class="form-label">HLV</label>
+
         <input asp-for="HLV" class="form-control" />
         <span asp-validation-for="HLV" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">CLB (CLB1/CLB2/CLB3)</label>
-        <select asp-for="CLB" class="form-select">
-            <option value="">-- Chọn CLB --</option>
-            <option>CLB1</option>
-            <option>CLB2</option>
-            <option>CLB3</option>
-        </select>
-        <span asp-validation-for="CLB" class="text-danger"></span>
-    </div>
+   
 
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a asp-action="Index" class="btn btn-link">Hủy</a>
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
