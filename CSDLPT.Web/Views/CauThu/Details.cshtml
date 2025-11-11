@@ -1,0 +1,66 @@
+﻿@model CSDLPT.Web.Models.CauThu
+
+@{
+    ViewData["Title"] = "Chi tiết Cầu thủ";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    <h4>Cầu thủ</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.MaCT)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.MaCT)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.HoTen)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.HoTen)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.MaDB)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.MaDB)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.ViTri)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.ViTri)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.NgaySinh)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.NgaySinh)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.SoAo)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.SoAo)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.QuocTich)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.QuocTich)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Node)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Node)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.MaCT" class="btn btn-primary">Chỉnh sửa</a> |
+    <a asp-action="Index">Trở về Danh sách</a>
+</div>

@@ -1,0 +1,73 @@
+﻿@model CSDLPT.Web.Models.CauThu
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Cầu thủ";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Cầu thủ</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @* Dùng hidden field để giữ giá trị MaCT khi POST *@
+            <input type="hidden" asp-for="MaCT" />
+
+            <div class="form-group mb-3">
+                <label asp-for="MaCT" class="control-label"></label>
+                @* Hiển thị MaCT nhưng không cho sửa *@
+                <input asp-for="MaCT" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="HoTen" class="control-label"></label>
+                <input asp-for="HoTen" class="form-control" />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="MaDB" class="control-label"></label>
+                @* Không cho phép sửa MaDB (khóa phân mảnh dẫn xuất)
+                  Chúng ta chỉ hiển thị nó ở dạng ReadOnly
+                  Hoặc dùng Dropdown nhưng ở trạng thái "disabled"
+                *@
+                <select asp-for="MaDB" class="form-control" asp-items="ViewBag.DoiBongList" disabled></select>
+                <span asp-validation-for="MaDB" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ViTri" class="control-label"></label>
+                <input asp-for="ViTri" class="form-control" />
+                <span asp-validation-for="ViTri" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="NgaySinh" class="control-label"></label>
+                <input asp-for="NgaySinh" class="form-control" type="date" />
+                <span asp-validation-for="NgaySinh" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="SoAo" class="control-label"></label>
+                <input asp-for="SoAo" class="form-control" />
+                <span asp-validation-for="SoAo" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="QuocTich" class="control-label"></label>
+                <input asp-for="QuocTich" class="form-control" />
+                <span asp-validation-for="QuocTich" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Lưu thay đổi" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-outline-secondary">Trở về Danh sách</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

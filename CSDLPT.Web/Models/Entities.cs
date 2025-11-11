@@ -35,15 +35,48 @@ namespace CSDLPT.Web.Models
         }
     }
 
-    public class CauThu
+    public class CauThu // 1. Xóa bỏ ": IValidatableObject"
     {
-        [Required, MaxLength(20)] public string MaCT { get; set; } = "";
-        [Required, MaxLength(100)] public string HoTen { get; set; } = "";
-        [MaxLength(50)] public string? ViTri { get; set; }
+        // 2. Bỏ [Required] khỏi MaCT
+        [MaxLength(20)]
+        [Display(Name = "Mã Cầu Thủ")]
+        public string MaCT { get; set; } = ""; // Sẽ được CSDL tự điền
+
+        [Required(ErrorMessage = "Họ tên là bắt buộc.")]
+        [MaxLength(100)]
+        [Display(Name = "Họ Tên")]
+        public string HoTen { get; set; } = "";
+
+        [MaxLength(50)]
+        [Display(Name = "Vị Trí")]
+        public string? ViTri { get; set; }
+
+        [Display(Name = "Ngày Sinh")]
+        [DataType(DataType.Date)]
         public DateTime? NgaySinh { get; set; }
-        [Required, MaxLength(20)] public string MaDB { get; set; } = "";
+
+        [Required(ErrorMessage = "Mã đội bóng là bắt buộc.")]
+        [MaxLength(20)]
+        [Display(Name = "Mã Đội Bóng")]
+        public string MaDB { get; set; } = ""; // Vẫn [Required]
+
+        [Display(Name = "Số Áo")]
         public int? SoAo { get; set; }
-        [MaxLength(50)] public string? QuocTich { get; set; }
+
+        [MaxLength(50)]
+        [Display(Name = "Quốc Tịch")]
+        public string? QuocTich { get; set; }
+
+        [Display(Name = "Node")]
+        public string? Node { get; set; }
+
+        // 3. XÓA BỎ toàn bộ phương thức Validate (IValidatableObject)
+        /*
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            // XÓA HẾT CODE TRONG NÀY
+        }
+        */
     }
 
     public class TranDau

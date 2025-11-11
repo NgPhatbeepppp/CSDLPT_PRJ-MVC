@@ -1,0 +1,99 @@
+﻿@model IEnumerable<CSDLPT.Web.Models.CauThu>
+
+@{
+    ViewData["Title"] = "Danh sách Cầu thủ";
+    // 1. Đọc trạng thái (local/global) từ Controller
+    bool isGlobalView = (ViewData["IsGlobalView"] as bool?) ?? false;
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@* Hiển thị thông báo (nếu có) *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Tạo mới Cầu thủ</a>
+</p>
+
+@* Nút chuyển đổi Local/Global *@
+<div class="mb-3">
+    @if (isGlobalView)
+    {
+        <span class="alert alert-info p-2" role="alert">
+            <strong>Chế độ xem:</strong> Toàn cục (Tất cả Node)
+        </span>
+        <a asp-action="Index" asp-route-showGlobal="false" class="btn btn-outline-secondary ml-2">
+            Xem Dữ liệu Cục bộ
+        </a>
+    }
+    else
+    {
+        <span class="alert alert-success p-2" role="alert">
+            <strong>Chế độ xem:</strong> Cục bộ (Node Mặc định)
+        </span>
+        <a asp-action="Index" asp-route-showGlobal="true" class="btn btn-primary ml-2">
+            Tải Dữ liệu Toàn cục
+        </a>
+    }
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MaCT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HoTen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ViTri)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaDB)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Node)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaCT)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HoTen)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ViTri)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaDB)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Node)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MaCT">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.MaCT">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MaCT">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

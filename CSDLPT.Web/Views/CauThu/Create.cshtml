@@ -1,0 +1,67 @@
+﻿@model CSDLPT.Web.Models.CauThu
+
+@{
+    ViewData["Title"] = "Tạo mới Cầu thủ";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Cầu thủ</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @* KHÔNG CẦN TRƯỜNG NHẬP MaCT
+              Vì CSDL (Stored Procedure) sẽ tự động tạo MaCT
+            *@
+
+            <div class="form-group mb-3">
+                <label asp-for="HoTen" class="control-label"></label>
+                <input asp-for="HoTen" class="form-control" />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="MaDB" class="control-label"></label>
+                @* Dùng Dropdown list được cung cấp từ ViewBag *@
+                <select asp-for="MaDB" class="form-control" asp-items="ViewBag.DoiBongList">
+                    <option value="">-- Chọn Đội Bóng --</option>
+                </select>
+                <span asp-validation-for="MaDB" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ViTri" class="control-label"></label>
+                <input asp-for="ViTri" class="form-control" />
+                <span asp-validation-for="ViTri" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="NgaySinh" class="control-label"></label>
+                <input asp-for="NgaySinh" class="form-control" type="date" />
+                <span asp-validation-for="NgaySinh" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="SoAo" class="control-label"></label>
+                <input asp-for="SoAo" class="form-control" />
+                <span asp-validation-for="SoAo" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="QuocTich" class="control-label"></label>
+                <input asp-for="QuocTich" class="form-control" />
+                <span asp-validation-for="QuocTich" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-outline-secondary">Trở về Danh sách</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

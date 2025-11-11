@@ -1,0 +1,54 @@
+﻿@model CSDLPT.Web.Models.CauThu
+
+@{
+    ViewData["Title"] = "Xóa Cầu thủ";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@* Hiển thị thông báo (nếu có lỗi xóa) *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<h3>Bạn có chắc chắn muốn xóa cầu thủ này?</h3>
+<div>
+    <h4>Cầu thủ</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.MaCT)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.MaCT)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.HoTen)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.HoTen)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.MaDB)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.MaDB)
+            </S>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Node)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Node)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        @* Dùng hidden field để POST MaCT về Controller *@
+        <input type="hidden" asp-for="MaCT" />
+        <input type="submit" value="Xác nhận Xóa" class="btn btn-danger" /> |
+        <a asp-action="Index">Hủy và Trở về Danh sách</a>
+    </form>
+</div>

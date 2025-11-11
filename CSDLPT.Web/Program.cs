@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IDoiBongRepo, DoiBongRepo>();
+builder.Services.AddScoped<ICauThuRepo, CauThuRepo>();
+
 
 var app = builder.Build();
 
