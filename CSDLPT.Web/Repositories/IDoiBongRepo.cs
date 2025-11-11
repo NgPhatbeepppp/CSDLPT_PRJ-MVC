@@ -1,12 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using CSDLPT.Web.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using CSDLPT.Web.Models;
 
-public interface IDoiBongRepo
+namespace CSDLPT.Web.Repositories
 {
-    Task<IEnumerable<DoiBong>> GetAllAsync();
-    Task<DoiBong?> FindAsync(string maDb, string clb);
-    Task<int> CreateAsync(DoiBong x);
-    Task<int> UpdateAsync(DoiBong x);
-    Task<int> DeleteAsync(string maDb);
+    public interface IDoiBongRepo
+    {
+        // === CẬP NHẬT ===
+        // Thêm tham số 'isGlobal', mặc định là 'false' (ưu tiên local)
+        Task<IEnumerable<DoiBong>> GetAllAsync(bool isGlobal = false);
+
+        
+        Task<DoiBong> GetByIdAsync(string id);
+        Task<int> CreateAsync(DoiBong doiBong);
+        Task<int> UpdateAsync(DoiBong doiBong);
+        Task<int> DeleteAsync(string id);
+    }
 }
