@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using CSDLPT.Web.Infrastructure;
 
 namespace CSDLPT.Web.Repositories
 {
@@ -18,7 +19,7 @@ namespace CSDLPT.Web.Repositories
             _localNode = configuration.GetValue<string>("SiteConfig:Node") ?? "UNK";
         }
 
-        // ... (Hàm GetAllAsync của bạn đã đúng) ...
+        
         public async Task<IEnumerable<DoiBong>> GetAllAsync(bool isGlobal = false)
         {
             if (isGlobal)

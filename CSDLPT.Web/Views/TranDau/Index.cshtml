@@ -1,0 +1,60 @@
+﻿@model IEnumerable<CSDLPT.Web.Models.TranDau>
+
+@{
+    ViewData["Title"] = "Danh sách Trận Đấu";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Tạo Trận Đấu Mới</a>
+</p>
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MaTD)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NgayThiDau)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaSan)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LuotDau)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VongDau)
+            </th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaTD)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NgayThiDau)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaSan)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LuotDau)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VongDau)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MaTD" class="btn btn-sm btn-primary">Sửa</a> |
+                    <a asp-action="Details" asp-route-id="@item.MaTD" class="btn btn-sm btn-info">Chi tiết</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MaTD" class="btn btn-sm btn-danger">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

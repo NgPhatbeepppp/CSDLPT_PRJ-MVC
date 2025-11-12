@@ -1,0 +1,48 @@
+﻿@model CSDLPT.Web.Models.TranDau
+
+@{
+    ViewData["Title"] = "Chi tiết Trận Đấu";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    <h4>Trận Đấu</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.MaTD)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MaTD)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.NgayThiDau)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NgayThiDau)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.MaSan)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MaSan)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LuotDau)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LuotDau)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VongDau)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VongDau)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.MaTD" class="btn btn-primary">Sửa</a> |
+    <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
+</div>

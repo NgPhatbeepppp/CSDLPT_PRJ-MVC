@@ -30,7 +30,7 @@
 
             <div class="form-group mb-3">
                 <label asp-for="MaDB" class="control-label"></label>
-                @* Trường này vẫn giữ "disabled" để người dùng không thể sửa *@
+                @* Trường này giữ "disabled" để người dùng không thể sửa *@
                 <select asp-for="MaDB" class="form-control" asp-items="ViewBag.DoiBongList" disabled></select>
                 <span asp-validation-for="MaDB" class="text-danger"></span>
             </div>

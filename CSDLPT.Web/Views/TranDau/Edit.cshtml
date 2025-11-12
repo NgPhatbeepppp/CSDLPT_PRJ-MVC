@@ -1,0 +1,58 @@
+﻿@model CSDLPT.Web.Models.TranDau
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Trận Đấu";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Trận Đấu</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="MaTD" class="control-label"></label>
+                <input asp-for="MaTD" class="form-control" readonly />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="NgayThiDau" class="control-label"></label>
+                <input asp-for="NgayThiDau" class="form-control" type="datetime-local" />
+                <span asp-validation-for="NgayThiDau" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaSan" class="control-label"></label>
+                <select asp-for="MaSan" class="form-control" asp-items="ViewBag.MaSanList" disabled>
+                </select>
+                <input type="hidden" asp-for="MaSan" />
+                <span asp-validation-for="MaSan" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LuotDau" class="control-label"></label>
+                <input asp-for="LuotDau" class="form-control" type="number" />
+                <span asp-validation-for="LuotDau" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VongDau" class="control-label"></label>
+                <input asp-for="VongDau" class="form-control" type="number" />
+                <span asp-validation-for="VongDau" class="text-danger"></span>
+            </div>
+
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Lưu" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

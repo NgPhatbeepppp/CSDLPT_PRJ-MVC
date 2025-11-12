@@ -1,6 +1,6 @@
 using CSDLPT.Web.Repositories;
 using Microsoft.AspNetCore.Builder;
-
+using CSDLPT.Web.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +9,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IDoiBongRepo, DoiBongRepo>();
 builder.Services.AddScoped<ICauThuRepo, CauThuRepo>();
+builder.Services.AddScoped<ITranDauRepo, TranDauRepo>();
+builder.Services.AddScoped<ISanRepo, SanRepo>();
 
 
 var app = builder.Build();

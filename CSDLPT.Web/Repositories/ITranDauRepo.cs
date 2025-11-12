@@ -1,5 +1,4 @@
-﻿// file: Repositories/ITranDauRepo.cs
-using CSDLPT.Web.Models;
+﻿using CSDLPT.Web.Models;
 
 namespace CSDLPT.Web.Repositories
 {
