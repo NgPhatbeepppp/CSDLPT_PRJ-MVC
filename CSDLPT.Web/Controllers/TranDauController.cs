@@ -1,11 +1,13 @@
 ﻿/* Nội dung file: CSDLPT.Web/Controllers/TranDauController.cs 
 Mục đích: Sửa lỗi Create POST (Không Bind MaTD) và hoàn thiện các hàm khác
+PHIÊN BẢN ĐÃ SỬA LỖI (Biên dịch và Hiệu năng)
 */
 using CSDLPT.Web.Models;
 using CSDLPT.Web.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq; // Cần thêm using này cho .Concat() và .ToDictionary()
 
 namespace CSDLPT.Web.Controllers
 {
@@ -58,23 +60,21 @@ namespace CSDLPT.Web.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadSanDropdownAsync();
-            await PopulateDoiBongDropDownList();
+            await PopulateDoiBongDropDownList(); // Đã chuẩn bị 'ViewBag.DoiBongList' cho cả 2 dropdown
             return View();
         }
 
         // POST: TranDau/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // === PHIÊN BẢN CHÍNH XÁC (Sửa lỗi) ===
-        // Không Bind MaTD
+        // Bind MaDoiNha, MaDoiKhach là chính xác
         public async Task<IActionResult> Create([Bind("NgayThiDau,MaSan,LuotDau,VongDau,MaDoiNha,MaDoiKhach")] TranDau tranDau)
         {
-            // Bật lại
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Dùng Repo đã sửa lỗi (ở trên)
+                    // Repo đã được viết để KHÔNG gửi MaTD (CSDL tự sinh)
                     await _tranDauRepo.CreateAsync(tranDau);
                     return RedirectToAction(nameof(Index));
                 }
@@ -89,7 +89,7 @@ namespace CSDLPT.Web.Controllers
             }
             // Nếu lỗi, load lại dropdowns
             await LoadSanDropdownAsync(tranDau.MaSan);
-            await PopulateDoiBongDropDownList();
+            await PopulateDoiBongDropDownList(); // Tải lại danh sách đội bóng
             return View(tranDau);
         }
 
@@ -113,7 +113,6 @@ namespace CSDLPT.Web.Controllers
         // POST: TranDau/Edit/TD01
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Bind MaTD là ĐÚNG vì đây là Update
         public async Task<IActionResult> Edit(string id, [Bind("MaTD,NgayThiDau,MaSan,LuotDau,VongDau,MaDoiNha,MaDoiKhach")] TranDau tranDau)
         {
             if (id != tranDau.MaTD) return NotFound();
@@ -176,20 +175,31 @@ namespace CSDLPT.Web.Controllers
             if (tranDau == null) return NotFound();
 
             var dsThamGia = await _thamGiaRepo.GetByMaTDAsync(id);
+
+            // FIX (Hiệu năng): Tải riêng cầu thủ của 2 đội cho dropdown
+            var cauThuDoiNha = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiNha, isGlobal: true);
+            var cauThuDoiKhach = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiKhach, isGlobal: true);
+            var cauThuHaiDoi = cauThuDoiNha.Concat(cauThuDoiKhach).ToList();
+
+            // Tải TẤT CẢ cầu thủ chỉ để tra cứu tên (lookup)
+            // (Nếu logic nghiệp vụ cho phép cầu thủ đội khác tham gia)
             var allCauThu = await _cauThuRepo.GetAllAsync(isGlobal: true);
 
             var viewModel = new TranDauDetailsViewModel
             {
                 TranDau = tranDau,
                 DanhSachThamGia = dsThamGia,
-                TenCauThuLookup = allCauThu.ToDictionary(ct => ct.MaCT, ct => $"{ct.Ho} {ct.Ten}"),
 
-                CauThuOptions = allCauThu
-                                .Where(ct => ct.MaDB == tranDau.MaDoiNha || ct.MaDB == tranDau.MaDoiKhach)
+                // FIX (Lỗi biên dịch): Dùng HoTen thay vì Ho và Ten
+                // Dùng allCauThu để tra cứu tên của bất kỳ ai đã tham gia
+                TenCauThuLookup = allCauThu.ToDictionary(ct => ct.MaCT, ct => ct.HoTen),
+
+                // FIX (Hiệu năng & Lỗi biên dịch): Dùng cauThuHaiDoi (đã lọc)
+                CauThuOptions = cauThuHaiDoi
                                 .Select(ct => new SelectListItem
                                 {
                                     Value = ct.MaCT,
-                                    Text = $"{ct.Ho} {ct.Ten} ({ct.MaCT})"
+                                    Text = $"{ct.HoTen} ({ct.MaCT})" // Dùng HoTen
                                 }).ToList(),
 
                 NewThamGia = new ThamGia { MaTD = id, SoTrai = 0 }
