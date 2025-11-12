@@ -112,7 +112,6 @@ namespace CSDLPT.Web.Models
         [StringLength(20)]
         public string MaTD { get; set; }
 
-
         [Display(Name = "Mã Cầu Thủ")]
         [Required]
         [StringLength(20)]

@@ -174,40 +174,64 @@ namespace CSDLPT.Web.Controllers
             var tranDau = await _tranDauRepo.GetByIdAsync(id);
             if (tranDau == null) return NotFound();
 
-            var dsThamGia = await _thamGiaRepo.GetByMaTDAsync(id);
+            var dsThamGia_Full = await _thamGiaRepo.GetByMaTDAsync(id);
+            var daThamGiaIds = dsThamGia_Full.Select(tg => tg.MaCT).ToHashSet();
 
-            // FIX (Hiệu năng): Tải riêng cầu thủ của 2 đội cho dropdown
-            var cauThuDoiNha = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiNha, isGlobal: true);
-            var cauThuDoiKhach = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiKhach, isGlobal: true);
-            var cauThuHaiDoi = cauThuDoiNha.Concat(cauThuDoiKhach).ToList();
-
-            // Tải TẤT CẢ cầu thủ chỉ để tra cứu tên (lookup)
-            // (Nếu logic nghiệp vụ cho phép cầu thủ đội khác tham gia)
+            var cauThuDoiNha_Full = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiNha, isGlobal: true);
+            var cauThuDoiKhach_Full = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiKhach, isGlobal: true);
             var allCauThu = await _cauThuRepo.GetAllAsync(isGlobal: true);
+            var cauThuHaiDoi = cauThuDoiNha_Full.Concat(cauThuDoiKhach_Full).ToList();
+
+            // SỬA 1: Tải TẤT CẢ đội bóng (để tra cứu tên)
+            var allDoiBong = await _doiBongRepo.GetAllAsync(isGlobal: true);
+
+            var maDoiBongLookup = allCauThu.ToDictionary(ct => ct.MaCT, ct => ct.MaDB ?? "KHAC");
 
             var viewModel = new TranDauDetailsViewModel
             {
                 TranDau = tranDau,
-                DanhSachThamGia = dsThamGia,
-
-                // FIX (Lỗi biên dịch): Dùng HoTen thay vì Ho và Ten
-                // Dùng allCauThu để tra cứu tên của bất kỳ ai đã tham gia
                 TenCauThuLookup = allCauThu.ToDictionary(ct => ct.MaCT, ct => ct.HoTen),
+                MaDoiBongLookup = maDoiBongLookup,
 
-                // FIX (Hiệu năng & Lỗi biên dịch): Dùng cauThuHaiDoi (đã lọc)
-                CauThuOptions = cauThuHaiDoi
-                                .Select(ct => new SelectListItem
-                                {
-                                    Value = ct.MaCT,
-                                    Text = $"{ct.HoTen} ({ct.MaCT})" // Dùng HoTen
-                                }).ToList(),
+                // SỬA 2: Gán bản đồ tra cứu Tên Đội Bóng
+                TenDoiBongLookup = allDoiBong.ToDictionary(db => db.MaDB, db => db.TenDB),
 
-                NewThamGia = new ThamGia { MaTD = id, SoTrai = 0 }
+                // (Các logic cũ cho Dropdown và Checkbox giữ nguyên...)
+                CauThuOptions = new SelectList(
+                    cauThuHaiDoi.Where(ct => !daThamGiaIds.Contains(ct.MaCT))
+                                 .Select(ct => new { ct.MaCT, TenHienThi = $"{ct.HoTen} ({ct.MaCT})" }),
+                    "MaCT", "TenHienThi"
+                ),
+                NewThamGia = new ThamGia { MaTD = id, SoTrai = 0 },
+                CauThuDoiNha_ChuaThamGia = cauThuDoiNha_Full
+                    .Where(ct => !daThamGiaIds.Contains(ct.MaCT))
+                    .OrderBy(ct => ct.HoTen)
+                    .ToList(),
+                CauThuDoiKhach_ChuaThamGia = cauThuDoiKhach_Full
+                    .Where(ct => !daThamGiaIds.Contains(ct.MaCT))
+                    .OrderBy(ct => ct.HoTen)
+                    .ToList(),
             };
+
+            // Phân loại dsThamGia_Full vào 3 list (Đã có)
+            foreach (var thamGia in dsThamGia_Full)
+            {
+                maDoiBongLookup.TryGetValue(thamGia.MaCT, out var maDB);
+
+                if (maDB == tranDau.MaDoiNha)
+                    viewModel.DanhSachThamGia_DoiNha.Add(thamGia);
+                else if (maDB == tranDau.MaDoiKhach)
+                    viewModel.DanhSachThamGia_DoiKhach.Add(thamGia);
+                else
+                    viewModel.DanhSachThamGia_Khac.Add(thamGia);
+            }
+
+            // SỬA 3: Tính tổng số trái cho mỗi đội (ngay trước khi return)
+            viewModel.TongSoTrai_DoiNha = viewModel.DanhSachThamGia_DoiNha.Sum(tg => tg.SoTrai ?? 0);
+            viewModel.TongSoTrai_DoiKhach = viewModel.DanhSachThamGia_DoiKhach.Sum(tg => tg.SoTrai ?? 0);
 
             return View(viewModel);
         }
-
         // === CÁC ACTION MỚI CHO THAMGIA ===
 
         [HttpPost]
@@ -257,6 +281,44 @@ namespace CSDLPT.Web.Controllers
             {
                 TempData["ErrorMessage"] = $"Lỗi khi cập nhật: {ex.Message}";
             }
+            return RedirectToAction(nameof(Details), new { id = MaTD });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BatchAddThamGia(string MaTD, List<string> SelectedCauThuIds)
+        {
+            if (SelectedCauThuIds == null || !SelectedCauThuIds.Any())
+            {
+                TempData["ErrorMessage"] = "Bạn chưa chọn cầu thủ nào.";
+                return RedirectToAction(nameof(Details), new { id = MaTD });
+            }
+
+            int successCount = 0;
+            try
+            {
+                // Lặp qua danh sách ID được chọn
+                foreach (var maCT in SelectedCauThuIds)
+                {
+                    var thamGiaMoi = new ThamGia
+                    {
+                        MaTD = MaTD,
+                        MaCT = maCT,
+                        SoTrai = 0 // Mặc định là 0
+                    };
+
+                    // Gọi Repo cho từng cầu thủ
+                    // Trigger tg_v_THAMGIA_INS sẽ xử lý định tuyến
+                    await _thamGiaRepo.CreateAsync(thamGiaMoi);
+                    successCount++;
+                }
+
+                TempData["SuccessMessage"] = $"Đã thêm thành công {successCount} cầu thủ.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Lỗi khi thêm hàng loạt: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Details), new { id = MaTD });
         }
     }

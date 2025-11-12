@@ -1,5 +1,5 @@
 ﻿/* Nội dung file: CSDLPT.Web/Repositories/TranDauRepo.cs 
-Mục đích: Cập nhật CreateAsync (MaTD tự sinh) và UpdateAsync
+Mục đích: Cập nhật CreateAsync (MaTD tự sinh) và UpdateAsync (SỬA LỖI)
 */
 using CSDLPT.Web.Infrastructure;
 using CSDLPT.Web.Models;
@@ -51,14 +51,14 @@ namespace CSDLPT.Web.Repositories
             }
         }
 
-        // === CẬP NHẬT PHƯƠNG THỨC NÀY ===
+        // === PHIÊN BẢN ĐÃ SỬA LỖI (Bỏ SET MaSan) ===
         public async Task UpdateAsync(TranDau tranDau)
         {
             using (var conn = Connection)
             {
                 var sql = @"UPDATE v_TRANDAU 
                             SET NgayThiDau = @NgayThiDau, 
-                                MaSan = @MaSan, 
+                                -- MaSan (Khóa phân mảnh) KHÔNG ĐƯỢC CẬP NHẬT
                                 LuotDau = @LuotDau, 
                                 VongDau = @VongDau,
                                 MaDoiNha = @MaDoiNha,
