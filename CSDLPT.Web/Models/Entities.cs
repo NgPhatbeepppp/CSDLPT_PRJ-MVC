@@ -70,28 +70,48 @@ namespace CSDLPT.Web.Models
         [Display(Name = "Node")]
         public string? Node { get; set; }
 
-        // 3. XÓA BỎ toàn bộ phương thức Validate (IValidatableObject)
-        /*
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            // XÓA HẾT CODE TRONG NÀY
-        }
-        */
+      
     }
 
     public class TranDau
     {
-        [Required, MaxLength(20)] public string MaTD { get; set; } = "";
+        // MaTD sẽ được DB tự sinh, C# không cần cung cấp khi Create
+        [Display(Name = "Mã Trận Đấu")]
+        [StringLength(20)]
+        public string? MaTD { get; set; }
+
+        [Display(Name = "Ngày Thi Đấu")]
+        [Required(ErrorMessage = "Ngày thi đấu là bắt buộc")]
+        [DataType(DataType.DateTime)]
         public DateTime? NgayThiDau { get; set; }
-        [Required, MaxLength(20)] public string MaSan { get; set; } = "";
+
+        [Display(Name = "Mã Sân")]
+        [Required(ErrorMessage = "Phải chọn Sân (để định tuyến)")]
+        [StringLength(20)]
+        public string MaSan { get; set; }
+
+        [Display(Name = "Lượt Đấu")]
+        [Range(1, 50, ErrorMessage = "Lượt đấu không hợp lệ")]
         public int? LuotDau { get; set; }
+
+        [Display(Name = "Vòng Đấu")]
+        [Range(1, 10, ErrorMessage = "Vòng đấu không hợp lệ")]
         public int? VongDau { get; set; }
     }
 
     public class ThamGia
     {
-        [Required, MaxLength(20)] public string MaTD { get; set; } = "";
-        [Required, MaxLength(20)] public string MaCT { get; set; } = "";
+        // Cặp khóa chính
+        [Required]
+        [StringLength(20)]
+        public string MaTD { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string MaCT { get; set; }
+
+        [Display(Name = "Số Trái (Bàn thắng)")]
+        [Range(0, 50, ErrorMessage = "Số trái không hợp lệ")]
         public int? SoTrai { get; set; }
     }
 }
