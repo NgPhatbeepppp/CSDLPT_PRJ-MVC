@@ -16,9 +16,9 @@
             @* Dùng hidden field để giữ giá trị MaCT khi POST *@
             <input type="hidden" asp-for="MaCT" />
 
+            <input type="hidden" asp-for="MaDB" />
             <div class="form-group mb-3">
                 <label asp-for="MaCT" class="control-label"></label>
-                @* Hiển thị MaCT nhưng không cho sửa *@
                 <input asp-for="MaCT" class="form-control" readonly />
             </div>
 
@@ -30,10 +30,7 @@
 
             <div class="form-group mb-3">
                 <label asp-for="MaDB" class="control-label"></label>
-                @* Không cho phép sửa MaDB (khóa phân mảnh dẫn xuất)
-                  Chúng ta chỉ hiển thị nó ở dạng ReadOnly
-                  Hoặc dùng Dropdown nhưng ở trạng thái "disabled"
-                *@
+                @* Trường này vẫn giữ "disabled" để người dùng không thể sửa *@
                 <select asp-for="MaDB" class="form-control" asp-items="ViewBag.DoiBongList" disabled></select>
                 <span asp-validation-for="MaDB" class="text-danger"></span>
             </div>
