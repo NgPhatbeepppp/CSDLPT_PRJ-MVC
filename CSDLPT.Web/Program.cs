@@ -11,7 +11,7 @@ builder.Services.AddScoped<IDoiBongRepo, DoiBongRepo>();
 builder.Services.AddScoped<ICauThuRepo, CauThuRepo>();
 builder.Services.AddScoped<ITranDauRepo, TranDauRepo>();
 builder.Services.AddScoped<ISanRepo, SanRepo>();
-
+builder.Services.AddScoped<IThamGiaRepo, ThamGiaRepo>();
 
 var app = builder.Build();
 

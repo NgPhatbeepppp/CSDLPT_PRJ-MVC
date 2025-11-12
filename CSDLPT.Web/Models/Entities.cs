@@ -97,15 +97,23 @@ namespace CSDLPT.Web.Models
         [Display(Name = "Vòng Đấu")]
         [Range(1, 10, ErrorMessage = "Vòng đấu không hợp lệ")]
         public int? VongDau { get; set; }
+        [Display(Name = "Mã Đội Nhà")]
+        public string? MaDoiNha { get; set; }
+
+        [Display(Name = "Mã Đội Khách")]
+        public string? MaDoiKhach { get; set; }
     }
 
     public class ThamGia
     {
         // Cặp khóa chính
+        [Display(Name = "Mã Trận Đấu")]
         [Required]
         [StringLength(20)]
         public string MaTD { get; set; }
 
+
+        [Display(Name = "Mã Cầu Thủ")]
         [Required]
         [StringLength(20)]
         public string MaCT { get; set; }

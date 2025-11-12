@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CSDLPT.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d35c43787e80a5932c7c9fc80cbb3585c8e771a4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f6e5ec4e5cc62ba56ce17ecd3e3eaf515a1258ee")]
 [assembly: System.Reflection.AssemblyProductAttribute("CSDLPT.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CSDLPT.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

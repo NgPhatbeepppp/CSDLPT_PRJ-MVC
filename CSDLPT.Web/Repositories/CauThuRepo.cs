@@ -133,5 +133,15 @@ namespace CSDLPT.Web.Repositories
                 }
             }
         }
+        public IEnumerable<CauThu> GetByMaDB(string maDB)
+        {
+            // Dùng ReadConnection
+            using (var conn = _connectionFactory.CreateWriteConnection())
+            {
+                // Truy vấn View toàn cục
+                var query = "SELECT * FROM v_CAUTHU WHERE MaDB = @MaDB";
+                return conn.Query<CauThu>(query, new { MaDB = maDB });
+            }
+        }
     }
 }
