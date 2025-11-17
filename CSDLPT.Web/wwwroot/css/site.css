@@ -20,3 +20,44 @@ html {
 body {
   margin-bottom: 60px;
 }
+/* Custom Colors */
+.text-navy {
+    color: #1E3A8A;
+}
+
+.bg-navy {
+    background-color: #1E3A8A;
+}
+
+.text-primary {
+    color: #3B82F6 !important;
+}
+
+.bg-primary-soft {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.bg-white-10 {
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+/* Hover Effects */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+.action-link:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+}
+
+/* Chart Canvas Container */
+canvas {
+    max-width: 100%;
+}

@@ -5,7 +5,8 @@ using CSDLPT.Web.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddRazorRuntimeCompilation();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IDoiBongRepo, DoiBongRepo>();
 builder.Services.AddScoped<ICauThuRepo, CauThuRepo>();
