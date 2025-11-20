@@ -13,23 +13,33 @@ public sealed class DoiBongController : Controller
     // --- HÀM INDEX (ĐÃ CHUẨN - Giữ nguyên) ---
     public async Task<IActionResult> Index(bool showGlobal = false)
     {
-        IEnumerable<DoiBong> doiBongs;
-
-        try
-        {
-            doiBongs = await _repo.GetAllAsync(showGlobal);
-        }
-        catch (SqlException ex) when (showGlobal && IsNetworkError(ex))
-        {
-            TempData["ErrorMessage"] = $"Không thể tải dữ liệu toàn cục. Lỗi kết nối: {ex.Message}. Đang hiển thị dữ liệu cục bộ.";
-            doiBongs = await _repo.GetAllAsync(isGlobal: false);
-            showGlobal = false;
-        }
-
+        // 1. Lưu trạng thái vào ViewData để View biết đang ở chế độ nào (hiện nút chuyển đổi)
         ViewData["IsGlobalView"] = showGlobal;
-        return View(doiBongs);
-    }
 
+        if (showGlobal)
+        {
+            // --- TRƯỜNG HỢP 1: XEM TOÀN CỤC (GLOBAL) ---
+            // Sử dụng hàm Safe Fetch mới (có xử lý lỗi node sập)
+            var (listDoiBong, errors) = await _repo.GetAllSafeAsync();
+
+            // Nếu có node bị lỗi, đẩy thông báo ra View
+            if (errors != null && errors.Count > 0)
+            {
+                ViewBag.SystemAlerts = errors;
+            }
+
+            return View(listDoiBong);
+        }
+        else
+        {
+            // --- TRƯỜNG HỢP 2: XEM CỤC BỘ (LOCAL) ---
+            // Sử dụng hàm cũ GetAllAsync(false) để chỉ lấy dữ liệu tại Node C
+            // Hàm này nhanh hơn vì không cần check mạng hay gọi SP phức tạp
+            var listDoiBong = await _repo.GetAllAsync(false);
+
+            return View(listDoiBong);
+        }
+    }
     private bool IsNetworkError(SqlException ex)
     {
         return ex.Number == 53 || ex.Number == -2 || ex.Number == 7391;

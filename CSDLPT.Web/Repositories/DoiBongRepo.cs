@@ -40,7 +40,7 @@ namespace CSDLPT.Web.Repositories
             }
         }
 
-        // [SỬA LỖI 1 - CREATE]
+       
         public async Task<int> CreateAsync(DoiBong doiBong)
         {
             using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
@@ -53,7 +53,7 @@ namespace CSDLPT.Web.Repositories
             }
         }
 
-        // [SỬA LỖI 2 - UPDATE]
+      
         public async Task<int> UpdateAsync(DoiBong doiBong)
         {
             using (var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
@@ -79,12 +79,40 @@ namespace CSDLPT.Web.Repositories
             }
         }
 
-        // ... (Hàm GetByIdAsync của bạn đã đúng logic) ...
+       
         public async Task<DoiBong> GetByIdAsync(string id)
         {
             using var connection = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator);
             string sql = "SELECT * FROM dbo.v_DOIBONG WHERE MaDB = @MaDB";
             return await connection.QuerySingleOrDefaultAsync<DoiBong>(sql, new { MaDB = id });
+        }
+        public async Task<(IEnumerable<DoiBong>, List<string>)> GetAllSafeAsync()
+        {
+            // Kết nối tới Coordinator (Node C)
+            using (var conn = _connectionFactory.CreateConnection(ConnectionType.WriteCoordinator))
+            {
+                // Gọi SP vừa tạo ở Bước 1.2
+                var sql = "dbo.sp_FetchGlobal_DoiBong_Safe";
+
+                // Dùng QueryMultiple để hứng 2 bảng kết quả
+                using (var multi = await conn.QueryMultipleAsync(sql, commandType: CommandType.StoredProcedure))
+                {
+                    // Bảng 1: Dữ liệu Đội bóng
+                    var data = await multi.ReadAsync<DoiBong>();
+
+                    // Bảng 2: Danh sách lỗi (NodeName, ErrorMsg)
+                    var errorRecords = await multi.ReadAsync<dynamic>();
+
+                    // Chuyển đổi dynamic sang List<string> cho dễ hiển thị
+                    var errorMessages = new List<string>();
+                    foreach (var err in errorRecords)
+                    {
+                        errorMessages.Add($"Cảnh báo: {err.NodeName} đang ngoại tuyến. Dữ liệu hiển thị chưa đầy đủ.");
+                    }
+
+                    return (data, errorMessages);
+                }
+            }
         }
     }
 }

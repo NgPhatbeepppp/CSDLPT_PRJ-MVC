@@ -167,66 +167,100 @@ namespace CSDLPT.Web.Controllers
         }
 
         // GET: TranDau/Details/TD01
+        // GET: TranDau/Details/TD01
         public async Task<IActionResult> Details(string id)
         {
-            if (id == null) return NotFound();
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
             var tranDau = await _tranDauRepo.GetByIdAsync(id);
             if (tranDau == null) return NotFound();
 
+            // 1. Lấy dữ liệu tham gia
             var dsThamGia_Full = await _thamGiaRepo.GetByMaTDAsync(id);
-            var daThamGiaIds = dsThamGia_Full.Select(tg => tg.MaCT).ToHashSet();
 
-            var cauThuDoiNha_Full = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiNha, isGlobal: true);
-            var cauThuDoiKhach_Full = await _cauThuRepo.GetByDoiBongAsync(tranDau.MaDoiKhach, isGlobal: true);
+            // Tạo HashSet các cầu thủ đã tham gia (để lọc dropdown) - Cần Trim() để chính xác
+            var daThamGiaIds = dsThamGia_Full
+                                .Select(tg => tg.MaCT?.Trim())
+                                .Where(x => x != null)
+                                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            // Chuẩn hóa mã đội của trận đấu (Trim + Upper để chắc chắn)
+            var maDoiNha = tranDau.MaDoiNha?.Trim();
+            var maDoiKhach = tranDau.MaDoiKhach?.Trim();
+
+            // 2. Lấy dữ liệu toàn cục
             var allCauThu = await _cauThuRepo.GetAllAsync(isGlobal: true);
-            var cauThuHaiDoi = cauThuDoiNha_Full.Concat(cauThuDoiKhach_Full).ToList();
-
-            // SỬA 1: Tải TẤT CẢ đội bóng (để tra cứu tên)
             var allDoiBong = await _doiBongRepo.GetAllAsync(isGlobal: true);
 
-            var maDoiBongLookup = allCauThu.ToDictionary(ct => ct.MaCT, ct => ct.MaDB ?? "KHAC");
+            // 3. Tạo Lookup map: MaCT -> MaDB
+            // QUAN TRỌNG: Sử dụng StringComparer.OrdinalIgnoreCase để không phân biệt hoa thường
+            var maDoiBongLookup = allCauThu
+                .Where(ct => !string.IsNullOrEmpty(ct.MaCT)) // Bỏ qua data rác nếu có
+                .ToDictionary(
+                    ct => ct.MaCT.Trim(),          // Key: MaCT đã cắt khoảng trắng
+                    ct => ct.MaDB?.Trim() ?? "KHAC", // Value: MaDB đã cắt khoảng trắng
+                    StringComparer.OrdinalIgnoreCase // Cho phép tìm "ct01" khớp với "CT01"
+                );
 
+            // 4. Tạo ViewModel
             var viewModel = new TranDauDetailsViewModel
             {
                 TranDau = tranDau,
-                TenCauThuLookup = allCauThu.ToDictionary(ct => ct.MaCT, ct => ct.HoTen),
+                TenCauThuLookup = allCauThu.ToDictionary(ct => ct.MaCT.Trim(), ct => ct.HoTen, StringComparer.OrdinalIgnoreCase),
                 MaDoiBongLookup = maDoiBongLookup,
+                TenDoiBongLookup = allDoiBong.ToDictionary(db => db.MaDB.Trim(), db => db.TenDB, StringComparer.OrdinalIgnoreCase),
 
-                // SỬA 2: Gán bản đồ tra cứu Tên Đội Bóng
-                TenDoiBongLookup = allDoiBong.ToDictionary(db => db.MaDB, db => db.TenDB),
+                NewThamGia = new ThamGia { MaTD = id, SoTrai = 0 },
 
-                // (Các logic cũ cho Dropdown và Checkbox giữ nguyên...)
+                // Dropdown: Chỉ hiện cầu thủ CHƯA tham gia
                 CauThuOptions = new SelectList(
-                    cauThuHaiDoi.Where(ct => !daThamGiaIds.Contains(ct.MaCT))
-                                 .Select(ct => new { ct.MaCT, TenHienThi = $"{ct.HoTen} ({ct.MaCT})" }),
+                    allCauThu.Where(ct => !daThamGiaIds.Contains(ct.MaCT.Trim()))
+                             .Select(ct => new { MaCT = ct.MaCT.Trim(), TenHienThi = $"{ct.HoTen} ({ct.MaCT.Trim()})" })
+                             .OrderBy(ct => ct.TenHienThi),
                     "MaCT", "TenHienThi"
                 ),
-                NewThamGia = new ThamGia { MaTD = id, SoTrai = 0 },
-                CauThuDoiNha_ChuaThamGia = cauThuDoiNha_Full
-                    .Where(ct => !daThamGiaIds.Contains(ct.MaCT))
+
+                // List checkbox cho đội nhà/khách (Lọc theo mã đội đã Trim)
+                CauThuDoiNha_ChuaThamGia = allCauThu
+                    .Where(ct => ct.MaDB?.Trim() == maDoiNha && !daThamGiaIds.Contains(ct.MaCT.Trim()))
                     .OrderBy(ct => ct.HoTen)
                     .ToList(),
-                CauThuDoiKhach_ChuaThamGia = cauThuDoiKhach_Full
-                    .Where(ct => !daThamGiaIds.Contains(ct.MaCT))
+
+                CauThuDoiKhach_ChuaThamGia = allCauThu
+                    .Where(ct => ct.MaDB?.Trim() == maDoiKhach && !daThamGiaIds.Contains(ct.MaCT.Trim()))
                     .OrderBy(ct => ct.HoTen)
                     .ToList(),
             };
 
-            // Phân loại dsThamGia_Full vào 3 list (Đã có)
+            // 5. Phân loại danh sách tham gia vào 3 nhóm (FIXED LOGIC)
             foreach (var thamGia in dsThamGia_Full)
             {
-                maDoiBongLookup.TryGetValue(thamGia.MaCT, out var maDB);
+                var maCTClean = thamGia.MaCT?.Trim(); // Cắt khoảng trắng mã cầu thủ từ bảng THAMGIA
 
-                if (maDB == tranDau.MaDoiNha)
-                    viewModel.DanhSachThamGia_DoiNha.Add(thamGia);
-                else if (maDB == tranDau.MaDoiKhach)
-                    viewModel.DanhSachThamGia_DoiKhach.Add(thamGia);
+                if (maCTClean != null && maDoiBongLookup.TryGetValue(maCTClean, out var maDBOfPlayer))
+                {
+                    // So sánh MaDB của cầu thủ với MaDB của trận đấu (Case Insensitive)
+                    if (string.Equals(maDBOfPlayer, maDoiNha, StringComparison.OrdinalIgnoreCase))
+                    {
+                        viewModel.DanhSachThamGia_DoiNha.Add(thamGia);
+                    }
+                    else if (string.Equals(maDBOfPlayer, maDoiKhach, StringComparison.OrdinalIgnoreCase))
+                    {
+                        viewModel.DanhSachThamGia_DoiKhach.Add(thamGia);
+                    }
+                    else
+                    {
+                        viewModel.DanhSachThamGia_Khac.Add(thamGia); // Cầu thủ thuộc đội khác (đã chuyển nhượng?)
+                    }
+                }
                 else
+                {
+                    // Không tìm thấy thông tin cầu thủ (có thể dữ liệu lỗi hoặc chưa sync)
                     viewModel.DanhSachThamGia_Khac.Add(thamGia);
+                }
             }
 
-            // SỬA 3: Tính tổng số trái cho mỗi đội (ngay trước khi return)
+            // 6. Tính tổng số trái (Sau khi đã phân loại đúng)
             viewModel.TongSoTrai_DoiNha = viewModel.DanhSachThamGia_DoiNha.Sum(tg => tg.SoTrai ?? 0);
             viewModel.TongSoTrai_DoiKhach = viewModel.DanhSachThamGia_DoiKhach.Sum(tg => tg.SoTrai ?? 0);
 

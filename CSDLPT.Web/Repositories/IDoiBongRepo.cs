@@ -15,5 +15,7 @@ namespace CSDLPT.Web.Repositories
         Task<int> CreateAsync(DoiBong doiBong);
         Task<int> UpdateAsync(DoiBong doiBong);
         Task<int> DeleteAsync(string id);
+
+        Task<(IEnumerable<DoiBong>, List<string>)> GetAllSafeAsync();
     }
 }

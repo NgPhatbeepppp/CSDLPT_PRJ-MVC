@@ -1,0 +1,284 @@
+﻿@{
+    ViewData["Title"] = "Đội Hình Team Dev";
+}
+
+<style>
+    /* === 1. GHI ĐÈ MÀU NỀN TOÀN TRANG (Global Background Override) === */
+    body {
+        background-color: #09090b !important; /* Màu nền đen xám carbon siêu lỳ */
+        background-image: radial-gradient(circle at 50% 0%, #1f2937 0%, #09090b 70%) !important; /* Hiệu ứng ánh sáng nhẹ từ trên cao */
+        color: #e2e8f0 !important;
+    }
+
+    :root {
+       
+        /* Màu thẻ sáng hơn nền trang một chút để nổi khối */
+        --card-bg: #18181b;
+        --card-border: rgba(255, 255, 255, 0.08);
+        --neon-accent: #10b981; /* Xanh Neon chuẩn */
+        --gold-accent: #fbbf24; /* Vàng cho Captain */
+    }
+
+    /* Hero Section */
+    .hero-section {
+        text-align: center;
+        padding: 4rem 0;
+    }
+
+    .hero-title {
+        font-weight: 900;
+        font-size: 3.5rem;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        /* Hiệu ứng chữ kim loại */
+        background: -webkit-linear-gradient(#fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    /* Player Card */
+    .player-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng nảy khi hover */
+        height: 100%;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    }
+
+        /* Captain Effect */
+        .player-card.captain-card {
+            border-color: rgba(251, 191, 36, 0.3); /* Viền vàng mờ */
+            background: linear-gradient(180deg, #18181b 0%, #262010 100%); /* Gradient đen ngả vàng nhẹ ở đáy */
+        }
+
+            .player-card.captain-card .kit-number {
+                color: rgba(251, 191, 36, 0.2);
+            }
+
+        .player-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+            border-color: var(--neon-accent);
+        }
+
+        .player-card.captain-card:hover {
+            border-color: var(--gold-accent);
+            box-shadow: 0 20px 40px -5px rgba(251, 191, 36, 0.15);
+        }
+
+    .card-header-img {
+        height: 320px;
+        width: 100%;
+        object-fit: cover;
+        /* Mask đen hòa vào nền thẻ */
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0));
+        background-color: #27272a; /* Màu placeholder tối */
+    }
+
+    .kit-number {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 3rem;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.05);
+        font-family: 'Impact', sans-serif;
+        z-index: 1;
+    }
+
+    .player-info {
+        position: relative;
+        z-index: 2;
+        padding: 1.5rem;
+        margin-top: -40px; /* Kéo nội dung lên đè nhẹ vào ảnh */
+    }
+
+    .player-role {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .role-captain {
+        color: var(--gold-accent);
+        border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .role-member {
+        color: var(--neon-accent);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Skill Bars */
+    .skill-label {
+        font-size: 0.75rem;
+        color: #a1a1aa;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .progress-custom {
+        height: 8px;
+        background-color: #27272a; /* Rãnh trượt màu tối */
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar-custom {
+        background: var(--neon-accent);
+        box-shadow: 0 0 10px var(--neon-accent); /* Hiệu ứng phát sáng neon cho thanh skill */
+    }
+
+    .bar-captain {
+        background: var(--gold-accent);
+        box-shadow: 0 0 10px var(--gold-accent);
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="hero-section mb-5">
+        <h1 class="hero-title">THE SQUAD</h1>
+        <p class="text-secondary mt-2 fs-5">
+            Biệt đội triển khai hệ thống phân tán CSDLPT 2025
+        </p>
+    </div>
+
+    <div class="row g-4 justify-content-center mb-5">
+
+        <div class="col-lg-4 col-md-6">
+            <div class="player-card captain-card">
+                <span class="kit-number">10</span>
+                <img src="~/images/AVATAR.jpg" class="card-header-img" alt="Nguyen Thanh Phat"
+                     onerror="this.src='https://via.placeholder.com/400x400/27272a/52525b?text=Captain'">
+
+                <div class="player-info text-center">
+                    <div class="mb-3">
+                        <span class="player-role role-captain"><i class="bi bi-star-fill me-1"></i> CAPTAIN</span>
+                        <h3 class="fw-bold text-white mt-2 text-uppercase">Nguyễn Thành Phát</h3>
+                        <p class="text-secondary small fst-italic">
+                            "Fullstack Architect & DB Master. Người thiết kế và vận hành toàn bộ trái tim của hệ thống."
+                        </p>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <div class="d-flex justify-content-between skill-label">
+                            <span>Hệ thống phân tán & RPC</span>
+                            <span class="text-warning">99</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar progress-bar-custom bar-captain" style="width: 99%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2 text-start">
+                        <div class="d-flex justify-content-between skill-label">
+                            <span>ASP.NET Core & UI/UX</span>
+                            <span class="text-warning">95</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar progress-bar-custom bar-captain" style="width: 95%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="player-card">
+                <span class="kit-number">08</span>
+                <img src="~/images/default.png" class="card-header-img" alt="Pham Truong Thanh"
+                     onerror="this.src='https://via.placeholder.com/400x400/27272a/52525b?text=Analyst'">
+
+                <div class="player-info text-center">
+                    <div class="mb-3">
+                        <span class="player-role role-member">ANALYST</span>
+                        <h3 class="fw-bold text-white mt-2 text-uppercase">Phạm Trường Thành</h3>
+                        <p class="text-secondary small fst-italic">
+                            "Documentation Specialist. Chuyên gia phân tích nghiệp vụ và soạn thảo tài liệu kỹ thuật."
+                        </p>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <div class="d-flex justify-content-between skill-label">
+                            <span>Phân tích hệ thống</span>
+                            <span>90</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar progress-bar-custom" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2 text-start">
+                        <div class="d-flex justify-content-between skill-label">
+                            <span>Thuyết trình & Báo cáo</span>
+                            <span>92</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar progress-bar-custom" style="width: 92%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="player-card">
+                <span class="kit-number">06</span>
+                <img src="~/images/default.png" class="card-header-img" alt="Hai Phi"
+                     onerror="this.src='https://via.placeholder.com/400x400/27272a/52525b?text=Infra'">
+
+                <div class="player-info text-center">
+                    <div class="mb-3">
+                        <span class="player-role role-member">ENGINEER</span>
+                        <h3 class="fw-bold text-white mt-2 text-uppercase">Hải Phi</h3>
+                        <p class="text-secondary small fst-italic">
+                            "Network Guardian. Người thiết lập hạ tầng mạng Tailscale và đảm bảo kết nối thông suốt."
+                        </p>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <div class="d-flex justify-content-between skill-label">
+                            <span>Hạ tầng mạng & VPN</span>
+                            <span>90</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar progress-bar-custom" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2 text-start">
+                        <div class="d-flex justify-content-between skill-label">
+                            <span>Kiểm thử (Testing)</span>
+                            <span>88</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar progress-bar-custom" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center border-top border-secondary pt-4 opacity-50">
+       
+        <div class="mt-2 d-flex justify-content-center gap-3 fs-5 text-muted">
+            <i class="bi bi-windows"></i>
+            <i class="bi bi-database"></i>
+            <i class="bi bi-code-square"></i>
+            <i class="bi bi-shield-lock"></i>
+        </div>
+    </div>
+</div>

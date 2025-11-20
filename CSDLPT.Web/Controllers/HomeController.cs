@@ -56,8 +56,9 @@ namespace CSDLPT.Web.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult About()
         {
+            ViewData["Title"] = "Đội Hình Team";
             return View();
         }
 

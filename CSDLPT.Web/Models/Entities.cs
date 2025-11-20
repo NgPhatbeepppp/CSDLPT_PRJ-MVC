@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
 namespace CSDLPT.Web.Models
 {
     public class DoiBong : IValidatableObject
@@ -12,6 +12,9 @@ namespace CSDLPT.Web.Models
         [Required, MaxLength(10)] public string CLB { get; set; } = "";
 
         [Display(Name = "Node")]
+
+        [NotMapped] // Đánh dấu để Entity Framework không cố tìm cột này trong bảng thật
+        public string? SourceNode { get; set; }
         public string? Node { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext _)
         {

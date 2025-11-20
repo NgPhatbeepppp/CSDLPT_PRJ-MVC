@@ -9,30 +9,107 @@
     <link rel="stylesheet" href="~/CSDLPT.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <style>
+        .navbar-custom {
+            background-color: rgba(15, 23, 42, 0.95); /* Deep Navy có độ trong suốt */
+            backdrop-filter: blur(10px); /* Hiệu ứng kính mờ */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .navbar-brand-text {
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            color: #94a3b8 !important; /* Màu xám nhạt mặc định */
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 0 5px;
+        }
+
+            /* Hiệu ứng hover phát sáng neon */
+            .nav-link:hover, .nav-link.active {
+                color: #10b981 !important; /* Neon Green */
+                text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+            }
+
+            /* Dấu gạch chân neon khi hover */
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 0;
+                left: 50%;
+                background-color: #10b981;
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+            }
+
+            .nav-link:hover::after {
+                width: 100%;
+            }
+
+        /* Nút About Us nổi bật hơn một chút */
+        .btn-about {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 5px 15px !important;
+        }
+
+            .btn-about:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+                border-color: #10b981;
+            }
+    </style>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbar-custom box-shadow mb-3 sticky-top">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CSDLPT.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-trophy-fill text-warning fs-4 me-2"></i>
+                    <span class="navbar-brand-text">CSDL PHÂN TÁN</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-speedometer2 me-1"></i> DASHBOARD
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="DoiBong" asp-action="Index">
+                                <i class="bi bi-shield-shaded me-1"></i> ĐỘI BÓNG
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="DoiBong" asp-action="Index">Đội bóng</a>
+                            <a class="nav-link" asp-area="" asp-controller="CauThu" asp-action="Index">
+                                <i class="bi bi-people me-1"></i> CẦU THỦ
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CauThu" asp-action="Index">Cầu Thủ</a>
+                            <a class="nav-link" asp-area="" asp-controller="TranDau" asp-action="Index">
+                                <i class="bi bi-calendar-event me-1"></i> LỊCH ĐẤU
+                            </a>
                         </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TranDau" asp-action="Index">Trận Đấu</a>
+                            <a class="nav-link btn-about" asp-area="" asp-controller="Home" asp-action="About">
+                                <i class="bi bi-info-circle me-1"></i> VỀ TEAM
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -45,9 +122,115 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <style>
+        .footer-custom {
+            background-color: #020617; /* Màu tối hơn nền body một chút (Slate 950) */
+            border-top: 1px solid rgba(16, 185, 129, 0.2); /* Viền trên xanh Neon mờ */
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: auto; /* Đẩy footer xuống đáy nếu nội dung ngắn */
+        }
+
+        .footer-title {
+            color: #f1f5f9;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.5px;
+            font-size: 1rem;
+        }
+
+        .footer-link {
+            color: #94a3b8;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .footer-link:hover {
+                color: #10b981; /* Neon Green khi hover */
+                padding-left: 5px; /* Hiệu ứng trượt nhẹ */
+            }
+
+        .tech-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .copyright-bar {
+            background-color: #000000; /* Đen hoàn toàn cho dòng cuối */
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+
+    <footer class="footer-custom pt-5">
         <div class="container">
-            &copy; 2025 - CSDLPT.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="footer-title">
+                        <i class="bi bi-database-fill-gear text-success me-2"></i>CSDL Phân Tán
+                    </h5>
+                    <p class="mb-3">
+                        Hệ thống quản lý giải bóng đá V-League mô phỏng trên môi trường phân tán 3 Node (WAN).
+                    </p>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-mortarboard-fill me-2 text-secondary"></i>
+                        <span>GVHD: ThS. Phạm Đức Thành</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-building-fill me-2 text-secondary"></i>
+                        <span>HUFLIT - Khoa CNTT</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="footer-title">Liên kết</h5>
+                    <a asp-controller="Home" asp-action="Index" class="footer-link">Dashboard</a>
+                    <a asp-controller="DoiBong" asp-action="Index" class="footer-link">Đội Bóng</a>
+                    <a asp-controller="CauThu" asp-action="Index" class="footer-link">Cầu Thủ</a>
+                    <a asp-controller="TranDau" asp-action="Index" class="footer-link">Lịch Thi Đấu</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">Công Nghệ</h5>
+                    <div class="mb-3">
+                        <span class="tech-badge">ASP.NET Core 8.0</span>
+                        <span class="tech-badge">SQL Server</span>
+                        <span class="tech-badge">Tailscale VPN</span>
+                        <span class="tech-badge">Linked Server</span>
+                        <span class="tech-badge">Bootstrap 5</span>
+                    </div>
+                    <p class="small text-muted">
+                        *Hệ thống vận hành theo mô hình RPC (Remote Procedure Call) & Linked Server Trigger.
+                    </p>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">Team Dev</h5>
+                    <p class="mb-3">Dự án được thực hiện bởi nhóm sinh viên lớp CSDLPT.</p>
+                    <a asp-controller="Home" asp-action="About" class="btn btn-outline-success btn-sm rounded-pill px-4">
+                        <i class="bi bi-people-fill me-1"></i> Xem thành viên
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright-bar mt-5 py-3">
+            <div class="container text-center d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <small class="text-muted mb-2 mb-md-0">
+                    &copy; 2025 Distributed Database Project. All rights reserved.
+                </small>
+                <small class="text-muted">
+                    Designed with <i class="bi bi-heart-fill text-danger mx-1" style="font-size: 0.7rem;"></i> for Football
+                </small>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

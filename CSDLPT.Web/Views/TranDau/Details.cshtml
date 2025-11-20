@@ -1,187 +1,245 @@
 ﻿@model CSDLPT.Web.Models.TranDauDetailsViewModel
 @{
     ViewData["Title"] = "Chi tiết Trận Đấu";
-}
-<hr />
-@{
-    // SỬA 1: Đã sửa GetValueOrDefault
-    var tenDoiNha = Model.TenDoiBongLookup.ContainsKey(Model.TranDau.MaDoiNha)
-                    ? Model.TenDoiBongLookup[Model.TranDau.MaDoiNha]
-                    : Model.TranDau.MaDoiNha;
 
-    var tenDoiKhach = Model.TenDoiBongLookup.ContainsKey(Model.TranDau.MaDoiKhach)
-                      ? Model.TenDoiBongLookup[Model.TranDau.MaDoiKhach]
-                      : Model.TranDau.MaDoiKhach;
+    // Helper function để lấy tên đội an toàn (có xử lý Trim)
+    string GetTenDoi(string maDoi)
+    {
+        if (string.IsNullOrEmpty(maDoi)) return "N/A";
+        var maClean = maDoi.Trim(); // Cắt khoảng trắng thừa từ DB
+        return Model.TenDoiBongLookup.ContainsKey(maClean)
+               ? Model.TenDoiBongLookup[maClean]
+               : maDoi;
+    }
+
+    var tenDoiNha = GetTenDoi(Model.TranDau.MaDoiNha);
+    var tenDoiKhach = GetTenDoi(Model.TranDau.MaDoiKhach);
 }
 
-<h2 style="text-align:center;">
-    @tenDoiNha
-    <span class="badge badge-primary" style="font-size: 1.1em; padding: 10px;">@Model.TongSoTrai_DoiNha</span>
-    -
-    <span class="badge badge-secondary" style="font-size: 1.1em; padding: 10px;">@Model.TongSoTrai_DoiKhach</span>
-    @tenDoiKhach
-</h2>
-<hr />
-<h3>Thêm nhanh Cầu thủ vào Trận</h3>
-<form asp-action="BatchAddThamGia" method="post">
-    <input type="hidden" name="MaTD" value="@Model.TranDau.MaTD" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="container mt-4">
+    @* --- PHẦN TỈ SỐ (SCORE BOARD) --- *@
+    <div class="card text-center shadow-sm mb-4">
+        <div class="card-header bg-light">
+            KẾT QUẢ TRẬN ĐẤU
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center justify-content-center">
+                @* Đội Nhà *@
+                <div class="col-4 text-end">
+                    <h3 class="text-primary fw-bold">@tenDoiNha</h3>
+                </div>
+
+                @* Tỉ số (Dùng badge bg-primary của Bootstrap 5) *@
+                <div class="col-auto">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-primary fs-2 mx-2 shadow">@Model.TongSoTrai_DoiNha</span>
+                        <span class="fs-3 text-muted">-</span>
+                        <span class="badge bg-danger fs-2 mx-2 shadow">@Model.TongSoTrai_DoiKhach</span>
+                    </div>
+                </div>
+
+                @* Đội Khách *@
+                <div class="col-4 text-start">
+                    <h3 class="text-danger fw-bold">@tenDoiKhach</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="row">
-        <div class="col-md-6">
-            <h4>
-                Đội nhà: @tenDoiNha
-            </h4>
-
-            @if (!Model.CauThuDoiNha_ChuaThamGia.Any())
-            {
-                <p class="text-muted">Tất cả cầu thủ đội nhà đã được thêm.</p>
-            }
-            else
-            {
-                <div style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
-                    @foreach (var ct in Model.CauThuDoiNha_ChuaThamGia)
-                    {
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox"
-                                   name="SelectedCauThuIds" value="@ct.MaCT" id="ct_@ct.MaCT">
-                            <label class="form-check-label" for="ct_@ct.MaCT">
-                                @ct.HoTen (@ct.MaCT)
-                            </label>
-                        </div>
-                    }
+        @* --- CỘT TRÁI: THÊM CẦU THỦ --- *@
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-info">
+                <div class="card-header bg-info text-white">
+                    <i class="bi bi-person-plus-fill"></i> Thêm Cầu Thủ Vào Trận
                 </div>
-            }
+                <div class="card-body">
+                    <form asp-action="BatchAddThamGia" method="post">
+                        <input type="hidden" name="MaTD" value="@Model.TranDau.MaTD" />
+
+                        <ul class="nav nav-tabs" id="teamTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#doiNhaTab" type="button" role="tab">Đội Nhà</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="away-tab" data-bs-toggle="tab" data-bs-target="#doiKhachTab" type="button" role="tab">Đội Khách</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content p-2 border border-top-0 rounded-bottom" style="background: #f8f9fa;">
+                            @* Tab Đội Nhà *@
+                            <div class="tab-pane fade show active" id="doiNhaTab" role="tabpanel">
+                                @if (!Model.CauThuDoiNha_ChuaThamGia.Any())
+                                {
+                                    <p class="text-muted small mt-2">Đã thêm hết cầu thủ.</p>
+                                }
+                                else
+                                {
+                                    <div style="max-height: 300px; overflow-y: auto;">
+                                        @foreach (var ct in Model.CauThuDoiNha_ChuaThamGia)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="SelectedCauThuIds" value="@ct.MaCT" id="ct_@ct.MaCT">
+                                                <label class="form-check-label small" for="ct_@ct.MaCT">@ct.HoTen (@ct.MaCT)</label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            @* Tab Đội Khách *@
+                            <div class="tab-pane fade" id="doiKhachTab" role="tabpanel">
+                                @if (!Model.CauThuDoiKhach_ChuaThamGia.Any())
+                                {
+                                    <p class="text-muted small mt-2">Đã thêm hết cầu thủ.</p>
+                                }
+                                else
+                                {
+                                    <div style="max-height: 300px; overflow-y: auto;">
+                                        @foreach (var ct in Model.CauThuDoiKhach_ChuaThamGia)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="SelectedCauThuIds" value="@ct.MaCT" id="ct_@ct.MaCT">
+                                                <label class="form-check-label small" for="ct_@ct.MaCT">@ct.HoTen (@ct.MaCT)</label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 mt-3">
+                            <i class="bi bi-plus-lg"></i> Thêm Đã Chọn
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <h4>
-                Đội khách: @tenDoiKhach
-            </h4>
-
-            @if (!Model.CauThuDoiKhach_ChuaThamGia.Any())
-            {
-                <p class="text-muted">Tất cả cầu thủ đội khách đã được thêm.</p>
-            }
-            else
-            {
-                <div style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
-                    @foreach (var ct in Model.CauThuDoiKhach_ChuaThamGia)
-                    {
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox"
-                                   name="SelectedCauThuIds" value="@ct.MaCT" id="ct_@ct.MaCT">
-                            <label class="form-check-label" for="ct_@ct.MaCT">
-                                @ct.HoTen (@ct.MaCT)
-                            </label>
-                        </div>
-                    }
+        @* --- CỘT PHẢI: DANH SÁCH ĐÃ THAM GIA --- *@
+        <div class="col-lg-8">
+            @* Bảng Đội Nhà *@
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span>ĐỘI NHÀ: <strong>@tenDoiNha</strong></span>
+                    <span class="badge bg-light text-primary">@Model.DanhSachThamGia_DoiNha.Count cầu thủ</span>
                 </div>
-            }
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cầu Thủ</th>
+                                <th style="width: 150px;">Bàn Thắng</th>
+                                <th style="width: 100px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.DanhSachThamGia_DoiNha)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (Model.TenCauThuLookup.ContainsKey(item.MaCT.Trim()))
+                                        {
+                                            @Model.TenCauThuLookup[item.MaCT.Trim()]
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">@item.MaCT</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <form asp-action="UpdateThamGiaSoTrai" method="post" class="d-flex">
+                                            <input type="hidden" name="MaTD" value="@item.MaTD" />
+                                            <input type="hidden" name="MaCT" value="@item.MaCT" />
+                                            <input type="number" name="SoTrai" value="@item.SoTrai" class="form-control form-control-sm me-1" min="0" />
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Lưu"><i class="bi bi-save"></i></button>
+                                        </form>
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-action="DeleteThamGia" method="post" onsubmit="return confirm('Xóa cầu thủ này khỏi trận đấu?');">
+                                            <input type="hidden" name="MaTD" value="@item.MaTD" />
+                                            <input type="hidden" name="MaCT" value="@item.MaCT" />
+                                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                            @if (Model.DanhSachThamGia_DoiNha.Count == 0)
+                            {
+                                <tr><td colspan="3" class="text-center text-muted py-3">Chưa có cầu thủ nào</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @* Bảng Đội Khách *@
+            <div class="card">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <span>ĐỘI KHÁCH: <strong>@tenDoiKhach</strong></span>
+                    <span class="badge bg-light text-danger">@Model.DanhSachThamGia_DoiKhach.Count cầu thủ</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cầu Thủ</th>
+                                <th style="width: 150px;">Bàn Thắng</th>
+                                <th style="width: 100px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.DanhSachThamGia_DoiKhach)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (Model.TenCauThuLookup.ContainsKey(item.MaCT.Trim()))
+                                        {
+                                            @Model.TenCauThuLookup[item.MaCT.Trim()]
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">@item.MaCT</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <form asp-action="UpdateThamGiaSoTrai" method="post" class="d-flex">
+                                            <input type="hidden" name="MaTD" value="@item.MaTD" />
+                                            <input type="hidden" name="MaCT" value="@item.MaCT" />
+                                            <input type="number" name="SoTrai" value="@item.SoTrai" class="form-control form-control-sm me-1" min="0" />
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Lưu"><i class="bi bi-save"></i></button>
+                                        </form>
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-action="DeleteThamGia" method="post" onsubmit="return confirm('Xóa cầu thủ này khỏi trận đấu?');">
+                                            <input type="hidden" name="MaTD" value="@item.MaTD" />
+                                            <input type="hidden" name="MaCT" value="@item.MaCT" />
+                                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                            @if (Model.DanhSachThamGia_DoiKhach.Count == 0)
+                            {
+                                <tr><td colspan="3" class="text-center text-muted py-3">Chưa có cầu thủ nào</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="form-group mt-3">
-        <input type="submit" value="Thêm các cầu thủ đã chọn" class="btn btn-success" />
-    </div>
-</form>
-
-<hr />
-
-<h3>
-    Đội nhà đã tham gia (@Model.DanhSachThamGia_DoiNha.Count)
-</h3>
-
-@if (Model.DanhSachThamGia_DoiNha.Count == 0)
-{
-    <p class="text-muted">Chưa có cầu thủ đội nhà nào tham gia.</p>
-}
-else
-{
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Mã Cầu Thủ</th>
-                <th>Tên Cầu Thủ</th>
-                <th>Số Trái (Bàn thắng)</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.DanhSachThamGia_DoiNha)
-            {
-                <tr>
-                    <td>@item.MaCT</td>
-                    <td>
-                        @(Model.TenCauThuLookup.ContainsKey(item.MaCT) ? Model.TenCauThuLookup[item.MaCT] : "Không rõ")
-                    </td>
-                    <td>
-                        <form asp-action="UpdateThamGiaSoTrai" method="post" class="form-inline">
-                            <input type="hidden" name="MaTD" value="@item.MaTD" />
-                            <input type="hidden" name="MaCT" value="@item.MaCT" />
-                            <input type="number" name="SoTrai" value="@item.SoTrai" class="form-control form-control-sm" style="width: 70px;" min="0" />
-                            <button type="submit" class="btn btn-outline-primary btn-sm ml-1">Lưu</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form asp-action="DeleteThamGia" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa cầu thủ này?');">
-                            <input type="hidden" name="MaTD" value="@item.MaTD" />
-                            <input type="hidden" name="MaCT" value="@item.MaCT" />
-                            <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<hr />
-
-<h3>
-    Đội khách đã tham gia (@Model.DanhSachThamGia_DoiKhach.Count)
-</h3>
-
-@if (Model.DanhSachThamGia_DoiKhach.Count == 0)
-{
-    <p class="text-muted">Chưa có cầu thủ đội khách nào tham gia.</p>
-}
-else
-{
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Mã Cầu Thủ</th>
-                <th>Tên Cầu Thủ</th>
-                <th>Số Trái (Bàn thắng)</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.DanhSachThamGia_DoiKhach)
-            {
-                <tr>
-                    <td>@item.MaCT</td>
-                    <td>
-                        @(Model.TenCauThuLookup.ContainsKey(item.MaCT) ? Model.TenCauThuLookup[item.MaCT] : "Không rõ")
-                    </td>
-                    <td>
-                        <form asp-action="UpdateThamGiaSoTrai" method="post" class="form-inline">
-                            <input type="hidden" name="MaTD" value="@item.MaTD" />
-                            <input type="hidden" name="MaCT" value="@item.MaCT" />
-                            <input type="number" name="SoTrai" value="@item.SoTrai" class="form-control form-control-sm" style="width: 70px;" min="0" />
-                            <button type="submit" class="btn btn-outline-primary btn-sm ml-1">Lưu</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form asp-action="DeleteThamGia" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa cầu thủ này?');">
-                            <input type="hidden" name="MaTD" value="@item.MaTD" />
-                            <input type="hidden" name="MaCT" value="@item.MaCT" />
-                            <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+</div>
