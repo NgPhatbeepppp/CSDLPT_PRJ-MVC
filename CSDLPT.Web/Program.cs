@@ -1,4 +1,4 @@
-using CSDLPT.Web.Repositories;
+﻿using CSDLPT.Web.Repositories;
 using Microsoft.AspNetCore.Builder;
 using CSDLPT.Web.Infrastructure;
 
@@ -13,6 +13,15 @@ builder.Services.AddScoped<ICauThuRepo, CauThuRepo>();
 builder.Services.AddScoped<ITranDauRepo, TranDauRepo>();
 builder.Services.AddScoped<ISanRepo, SanRepo>();
 builder.Services.AddScoped<IThamGiaRepo, ThamGiaRepo>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.Cookie.Name = "CSDLPT.AuthCookie";
+        options.LoginPath = "/Account/Login"; 
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    });
+
 
 var app = builder.Build();
 
@@ -30,9 +39,11 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseAuthentication();
+
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+   pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

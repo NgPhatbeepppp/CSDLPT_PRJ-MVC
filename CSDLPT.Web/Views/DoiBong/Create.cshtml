@@ -1,95 +1,260 @@
 ﻿@model CSDLPT.Web.Models.DoiBong
+
 @{
-    ViewData["Title"] = "Thêm đội bóng";
+    ViewData["Title"] = "Thêm Đội bóng mới";
 }
-<h2>@ViewData["Title"]</h2>
 
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <div class="mb-3">
-        <label class="form-label">Mã DB</label>
-        <input asp-for="MaDB" class="form-control" id="MaDB" />
-        <div class="form-text" id="prefixHelp">Chọn CLB để hiển thị quy ước tiền tố.</div>
-        <span asp-validation-for="MaDB" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">CLB (CLB1/CLB2/CLB3)</label>
-        <select asp-for="CLB" class="form-select" id="CLB">
-
-            <option value="">-- Chọn CLB --</option>
-            <option>CLB1</option>
-            <option>CLB2</option>
-            <option>CLB3</option>
-        </select>
-        <span asp-validation-for="CLB" class="text-danger"></span>
-    </div>
-
-  
-    @section Scripts{
-        <partial name="_ValidationScriptsPartial" />
-        @* (Nội dung của partial này đến từ file _ValidationScriptsPartial.cshtml) *@
-
-        <script>
-
-            (function () {
-              const $clb = document.getElementById('CLB');
-              const $ma  = document.getElementById('MaDB');
-              const $hint= document.getElementById('prefixHelp');
-
-              function expectedPrefix(clb){
-                if (clb === 'CLB1') return 'A_';
-                if (clb === 'CLB2') return 'B_';
-                if (clb === 'CLB3') return 'C_';
-                return null;
-              }
-
-              function applyPattern(){
-                const p = expectedPrefix($clb.value);
-                if (p){
-                  // HTML5 pattern: bắt đầu bằng tiền tố và có thêm ít nhất 1 ký tự phía sau
-                  $ma.setAttribute('pattern', '^' + p.replace('_','_') + '.+');
-                  $ma.setAttribute('title', 'MaDB phải bắt đầu bằng "' + p + '".');
-                  $hint.textContent = 'Quy ước: ' + p + '... (theo ' + $clb.value + ')';
-                } else {
-                  $ma.removeAttribute('pattern');
-                  $ma.removeAttribute('title');
-                  $hint.textContent = 'Chọn CLB để hiển thị quy ước tiền tố.';
-                }
-              }
-
-              $clb.addEventListener('change', applyPattern);
-              applyPattern(); // khởi tạo khi vào trang
-            })();
-        </script>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --accent-green: #10b981;
+        --accent-blue: #3b82f6;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
     }
 
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
+    /* Card Styling */
+    .create-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
 
-    <div class="mb-3">
-        <label class="form-label">Tên đội</label>
-        <input asp-for="TenDB" class="form-control" />
-        <span asp-validation-for="TenDB" class="text-danger"></span>
+    /* Form Controls */
+    .form-control-dark, .form-select-dark {
+        background-color: #0f172a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+
+        .form-control-dark:focus, .form-select-dark:focus {
+            background-color: #0f172a;
+            border-color: var(--accent-green);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+    .form-label-custom {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Custom Logic Styling */
+    .prefix-badge {
+        background-color: rgba(59, 130, 246, 0.15); /* Blue tint */
+        color: var(--accent-blue);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-family: 'Consolas', monospace;
+        font-weight: bold;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: none; /* Ẩn mặc định */
+    }
+
+    .section-divider {
+        border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .section-label {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--bg-card);
+        padding: 0 15px;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+
+    /* Button Styling */
+    .btn-pitch {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: transform 0.2s;
+    }
+
+        .btn-pitch:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+    .btn-outline-light-custom {
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-secondary);
+        padding: 0.75rem 1.5rem;
+    }
+
+        .btn-outline-light-custom:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <div class="text-center mb-5">
+                <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 p-4 rounded-circle mb-3 border border-success border-opacity-25">
+                    <i class="bi bi-shield-plus text-success fs-1"></i>
+                </div>
+                <h2 class="fw-bold">Thêm Đội Bóng Mới</h2>
+                <p class="text-secondary">Khởi tạo dữ liệu đội bóng và phân mảnh về Site tương ứng.</p>
+            </div>
+
+            <div class="create-card p-4 p-md-5">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger mb-4"></div>
+
+                    <div class="bg-body bg-opacity-50 p-3 rounded-3 border border-secondary border-opacity-25 mb-4">
+                        <h6 class="text-white mb-3"><i class="bi bi-hdd-network me-2 text-primary"></i>Cấu hình Phân mảnh</h6>
+
+                        <div class="mb-3">
+                            <label asp-for="CLB" class="form-label-custom">Chọn Câu Lạc Bộ (Site Owner)</label>
+                            <select asp-for="CLB" class="form-select form-select-dark" id="CLB">
+                                <option value="">-- Vui lòng chọn CLB --</option>
+                                <option value="CLB1">CLB1 (Site A)</option>
+                                <option value="CLB2">CLB2 (Site B)</option>
+                                <option value="CLB3">CLB3 (Site C)</option>
+                            </select>
+                            <span asp-validation-for="CLB" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="MaDB" class="form-label-custom">Mã Đội Bóng (Khóa chính)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 p-0 pe-2 border-end-0">
+                                    <span id="prefixBadge" class="prefix-badge">A_</span>
+                                </span>
+                                <input asp-for="MaDB" class="form-control form-control-dark border-start-0 ps-0" id="MaDB" placeholder="VD: DB01" />
+                            </div>
+                            <div class="form-text mt-2 text-secondary fst-italic" id="prefixHelp">
+                                <i class="bi bi-info-circle me-1"></i>Vui lòng chọn CLB trước để xem quy ước mã.
+                            </div>
+                            <span asp-validation-for="MaDB" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">
+                        <span class="section-label">Thông tin chi tiết</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="TenDB" class="form-label-custom">Tên Đội Bóng</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary"><i class="bi bi-bookmark-star"></i></span>
+                            <input asp-for="TenDB" class="form-control form-control-dark" placeholder="Nhập tên đầy đủ..." />
+                        </div>
+                        <span asp-validation-for="TenDB" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="MaSan" class="form-label-custom">Mã Sân Nhà</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary"><i class="bi bi-geo-alt"></i></span>
+                                <input asp-for="MaSan" class="form-control form-control-dark" placeholder="VD: SD1" />
+                            </div>
+                            <span asp-validation-for="MaSan" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="HLV" class="form-label-custom">Huấn Luyện Viên</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary"><i class="bi bi-person-video3"></i></span>
+                                <input asp-for="HLV" class="form-control form-control-dark" placeholder="Tên HLV..." />
+                            </div>
+                            <span asp-validation-for="HLV" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 mt-5">
+                        <a asp-action="Index" class="btn btn-outline-light-custom rounded-pill">
+                            <i class="bi bi-x-lg me-2"></i>Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-pitch rounded-pill shadow-lg">
+                            <i class="bi bi-check-lg me-2"></i>Tạo Đội Bóng
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label class="form-label">Mã sân</label>
-        <input asp-for="MaSan" class="form-control" />
-        <span asp-validation-for="MaSan" class="text-danger"></span>
-    </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 
-    <div class="mb-3">
-        <label class="form-label">HLV</label>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const $clb = document.getElementById('CLB');
+            const $ma  = document.getElementById('MaDB');
+            const $hint = document.getElementById('prefixHelp');
+            const $badge = document.getElementById('prefixBadge');
 
-        <input asp-for="HLV" class="form-control" />
-        <span asp-validation-for="HLV" class="text-danger"></span>
-    </div>
+            // Map quy ước tiền tố theo đề bài (Quy_Uoc_Ma_Dinh_Danh_v3)
+            function expectedPrefix(clb){
+                if (clb === 'CLB1') return 'A_'; // Site Node A
+                if (clb === 'CLB2') return 'B_'; // Site Node B
+                if (clb === 'CLB3') return 'C_'; // Site Node C
+                return null;
+            }
 
-   
+            function applyPattern(){
+                const p = expectedPrefix($clb.value);
 
-    <button type="submit" class="btn btn-primary">Lưu</button>
-    <a asp-action="Index" class="btn btn-link">Hủy</a>
-</form>
+                if (p) {
+                    // Update Logic Validation
+                    $ma.setAttribute('pattern', '^' + p + '.+');
+                    $ma.setAttribute('title', 'Mã Đội phải bắt đầu bằng "' + p + '" để đúng quy tắc phân tán.');
 
+                    // Update UI Hint
+                    $hint.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Hợp lệ.</span> Hệ thống sẽ route về Node tương ứng với ' + $clb.value;
+
+                    // Update UI Badge
+                    $badge.textContent = p;
+                    $badge.style.display = 'inline-block';
+                    $ma.classList.remove('ps-0'); // Đẩy text input sang phải để né badge
+                    $ma.classList.add('ps-2');
+
+                } else {
+                    // Reset Logic
+                    $ma.removeAttribute('pattern');
+                    $ma.removeAttribute('title');
+
+                    // Reset UI
+                    $hint.innerHTML = '<i class="bi bi-info-circle me-1"></i>Vui lòng chọn CLB để hiển thị quy ước mã.';
+                    $badge.style.display = 'none';
+                    $ma.classList.add('ps-0'); // Trả text input về sát lề trái
+                }
+            }
+
+            $clb.addEventListener('change', applyPattern);
+
+            // Chạy lần đầu phòng trường hợp Form load lại khi Validate server-side fail
+            applyPattern();
+        });
+    </script>
+}

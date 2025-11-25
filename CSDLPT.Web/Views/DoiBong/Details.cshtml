@@ -1,53 +1,264 @@
 ﻿@model CSDLPT.Web.Models.DoiBong
+
 @{
-    ViewData["Title"] = "Chi tiết Đội bóng";
+    ViewData["Title"] = "Hồ sơ Đội bóng";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --accent-green: #10b981;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --card-border: rgba(255, 255, 255, 0.05);
+    }
 
-<div>
-    <h4>Đội bóng</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            Mã Đội Bóng
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.MaDB)
-        </dd>
-        <dt class="col-sm-2">
-            Tên Đội Bóng
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TenDB)
-        </dd>
-        <dt class="col-sm-2">
-            Mã Sân
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.MaSan)
-        </dd>
-        <dt class="col-sm-2">
-            Huấn Luyện Viên
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.HLV)
-        </dd>
-        <dt class="col-sm-2">
-            Câu Lạc Bộ
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CLB)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Node)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Node)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.MaDB" class="btn btn-primary">Chỉnh sửa</a> |
-    <a asp-action="Index">Trở về Danh sách</a>
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Card Layout */
+    .profile-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Hero Banner Section */
+    .club-banner {
+        background: radial-gradient(circle at center, #065f46 0%, #0f172a 100%);
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* Decorative pattern overlay */
+        .club-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+    /* Emblem / Logo Container */
+    .emblem-wrapper {
+        position: absolute;
+        bottom: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 120px;
+        background-color: var(--bg-card);
+        border-radius: 50%;
+        padding: 8px;
+        border: 4px solid var(--accent-green);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .emblem-icon {
+        font-size: 3.5rem;
+        color: var(--accent-green);
+    }
+
+    /* Content Typography */
+    .club-name {
+        margin-top: 70px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+        text-align: center;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .coach-badge {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    /* Info Boxes */
+    .info-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform 0.2s;
+    }
+
+        .info-box:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+    .info-label {
+        color: var(--accent-green);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    /* Tech Badges */
+    .tech-badge {
+        font-family: 'Consolas', monospace;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+
+    .node-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #f1f5f9;
+        font-weight: 600;
+    }
+
+    .node-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--accent-green);
+        border-radius: 50%;
+        box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    /* Buttons */
+    .btn-action {
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-edit {
+        background: var(--accent-green);
+        color: #fff;
+        border: none;
+    }
+
+        .btn-edit:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+    .btn-back {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-secondary);
+    }
+
+        .btn-back:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="profile-card">
+                <div class="club-banner"></div>
+                <div class="emblem-wrapper">
+                    <i class="bi bi-shield-shaded emblem-icon"></i>
+                </div>
+
+                <div class="card-body px-4 pb-5">
+
+                    <div class="text-center mb-5">
+                        <h1 class="club-name display-5">@Html.DisplayFor(model => model.TenDB)</h1>
+                        <div class="coach-badge">
+                            <i class="bi bi-whistle me-2 text-warning"></i>
+                            HLV Trưởng: <span class="text-white fw-bold ms-1">@Html.DisplayFor(model => model.HLV)</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
+                                    <div>
+                                        <span class="info-label">Sân Nhà</span>
+                                        <div class="info-value">Mã Sân: <span class="text-white">@Html.DisplayFor(model => model.MaSan)</span></div>
+                                    </div>
+                                </div>
+                                <hr class="border-secondary opacity-25">
+                                <p class="text-secondary small mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Trận đấu của đội sẽ được tổ chức tại sân này. Dữ liệu trận đấu sẽ được lưu tại Node chứa Sân.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <span class="info-label">Thông tin Định tuyến</span>
+                                        <div class="node-indicator mt-1">
+                                            <span class="node-dot"></span>
+                                            @Html.DisplayFor(model => model.Node)
+                                        </div>
+                                    </div>
+                                    <i class="bi bi-hdd-network text-primary fs-4"></i>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-4 p-2 rounded bg-dark bg-opacity-50">
+                                    <small class="text-secondary">Mã Đội (PK)</small>
+                                    <span class="tech-badge">@Html.DisplayFor(model => model.MaDB)</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2 p-2 rounded bg-dark bg-opacity-50">
+                                    <small class="text-secondary">Owner (Site)</small>
+                                    <span class="tech-badge text-warning" style="background: rgba(245, 158, 11, 0.1);">@Html.DisplayFor(model => model.CLB)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <a asp-action="Index" class="btn btn-action btn-back text-decoration-none">
+                            <i class="bi bi-arrow-left me-2"></i>Trở về
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model.MaDB" class="btn btn-action btn-edit text-decoration-none shadow-lg">
+                            <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa Đội
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>

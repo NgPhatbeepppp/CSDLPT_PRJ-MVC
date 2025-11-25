@@ -1,80 +1,83 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-
+using Microsoft.AspNetCore.Http; 
+using System.Security.Claims;
 
 namespace CSDLPT.Web.Infrastructure
 {
-    // 1. Định nghĩa Enum để quản lý các loại kết nối
+    // 1. Giữ nguyên Enum cũ
     public enum ConnectionType
     {
-
-        /// Kết nối GHI: Luôn trỏ đến Coordinator DB (CSDL_PHANTAN_Coord)
-        /// Dùng cho:
-        /// 1. Mọi thao tác GHI (Insert, Update, Delete)
-        /// 2. Thao tác ĐỌC TOÀN CỤC (Global Read) qua View v_global_*
-        WriteCoordinator,
-
-
-        /// Kết nối ĐỌC CỤC BỘ: Trỏ đến DB Mảnh tại node hiện tại (ví dụ: CSDL_PHANTAN_C)
-        /// Dùng cho:
-        /// 1. Thao tác ĐỌC CỤC BỘ (Local Read) mặc định.
-
-        ReadLocalFragment
+        WriteCoordinator,   // Luôn là Site C
+        ReadLocalFragment   // Tự động theo User (A hoặc B), nếu chưa login thì về C
     }
 
-    // 2. Cập nhật Interface (giao diện)
+    // 2. Giữ nguyên Interface cũ
     public interface IDbConnectionFactory
     {
-
-        /// Hàm tạo kết nối chung, linh hoạt nhất.
         IDbConnection CreateConnection(ConnectionType type);
-
-
-        /// (Tùy chọn) Hàm helper để GHI (luôn là Coordinator)
-
         IDbConnection CreateWriteConnection();
-
-        /// (Tùy chọn) Hàm helper để ĐỌC CỤC BỘ (luôn là Local Fragment)
-
         IDbConnection CreateLocalReadConnection();
     }
 
-    // 3. Cập nhật Class triển khai (Implementation)
+    // 3. Class triển khai (Đã nâng cấp logic định tuyến)
     public sealed class DbConnectionFactory : IDbConnectionFactory
     {
-        private readonly string _writeConnection;
-        private readonly string _localReadConnection;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DbConnectionFactory(IConfiguration cfg)
+        // Inject thêm IHttpContextAccessor để biết ai đang đăng nhập
+        public DbConnectionFactory(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
-            // Đọc 2 chuỗi kết nối đã định nghĩa trong appsettings.json
-            _writeConnection = cfg.GetConnectionString("WriteCoordinator")!;
-            _localReadConnection = cfg.GetConnectionString("ReadLocalFragment")!;
-
-            // Kiểm tra lỗi cấu hình
-            if (string.IsNullOrEmpty(_writeConnection))
-                throw new InvalidOperationException("Connection string 'WriteConnection' not found in appsettings.json.");
-            if (string.IsNullOrEmpty(_localReadConnection))
-                throw new InvalidOperationException("Connection string 'ReadConnection_Local' not found in appsettings.json.");
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        // 4. Triển khai hàm chính
         public IDbConnection CreateConnection(ConnectionType type)
         {
-            // Dùng switch expression để trả về kết nối SQL tương ứng
-            return type switch
+            string connectionStringName = "";
+
+            switch (type)
             {
-                ConnectionType.WriteCoordinator => new SqlConnection(_writeConnection),
-                ConnectionType.ReadLocalFragment => new SqlConnection(_localReadConnection),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), "Invalid connection type specified.")
-            };
+                case ConnectionType.WriteCoordinator:
+                    //  Luôn trỏ vào key "Coordinator" trong appsettings
+                    connectionStringName = "Coordinator";
+                    break;
+
+                case ConnectionType.ReadLocalFragment:
+                    var user = _httpContextAccessor.HttpContext?.User;
+                    var sourceSite = user?.FindFirst("SourceSite")?.Value;
+
+                    if (!string.IsNullOrEmpty(sourceSite))
+                    {
+                        // Nếu user là SiteA/SiteB/SiteC -> Lấy chuỗi kết nối tương ứng
+                        connectionStringName = sourceSite;
+                    }
+                    else
+                    {
+                        // Nếu chưa login -> Mặc định về Coordinator để còn login được
+                        connectionStringName = "Coordinator";
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), "Invalid connection type specified.");
+            }
+
+            // Lấy chuỗi kết nối thực tế từ appsettings.json
+            string connectionString = _configuration.GetConnectionString(connectionStringName);
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException($"Connection string '{connectionStringName}' not found in appsettings.json.");
+            }
+
+            return new SqlConnection(connectionString);
         }
 
-        // 5. Triển khai các hàm helper (từ interface)
+        // Các hàm helper giữ nguyên
         public IDbConnection CreateWriteConnection() => CreateConnection(ConnectionType.WriteCoordinator);
         public IDbConnection CreateLocalReadConnection() => CreateConnection(ConnectionType.ReadLocalFragment);
     }
-
-
 }

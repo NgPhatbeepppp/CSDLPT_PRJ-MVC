@@ -1,66 +1,225 @@
 ﻿@model CSDLPT.Web.Models.CauThu
 
 @{
-    ViewData["Title"] = "Chi tiết Cầu thủ";
+    ViewData["Title"] = "Hồ sơ Cầu thủ";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --accent-green: #10b981;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+    }
 
-<div>
-    <h4>Cầu thủ</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.MaCT)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.MaCT)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.HoTen)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.HoTen)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.MaDB)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.MaDB)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.ViTri)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.ViTri)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.NgaySinh)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.NgaySinh)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.SoAo)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.SoAo)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.QuocTich)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.QuocTich)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.Node)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Node)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.MaCT" class="btn btn-primary">Chỉnh sửa</a> |
-    <a asp-action="Index">Trở về Danh sách</a>
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Card Styling */
+    .player-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    /* Header Background with Gradient */
+    .card-header-bg {
+        background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+        height: 120px;
+        position: relative;
+    }
+
+    /* Avatar Container */
+    .avatar-container {
+        position: absolute;
+        bottom: -50px;
+        left: 40px;
+        width: 100px;
+        height: 100px;
+        background-color: var(--bg-card);
+        border-radius: 50%;
+        padding: 6px;
+        border: 2px solid var(--accent-green);
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        background-color: #334155;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--text-secondary);
+    }
+
+    /* Typography & Badges */
+    .data-label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .data-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .code-font {
+        font-family: 'Consolas', monospace;
+        color: var(--accent-green);
+        background: rgba(16, 185, 129, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+
+    .jersey-number {
+        font-size: 4rem;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.05);
+        position: absolute;
+        top: 10px;
+        right: 30px;
+        line-height: 1;
+    }
+
+    .btn-pitch {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+
+        .btn-pitch:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .btn-outline-light-custom {
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-secondary);
+    }
+
+        .btn-outline-light-custom:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+</style>
+
+<div class="container py-5">
+    <div class="mb-4">
+        <a asp-action="Index" class="text-decoration-none text-secondary d-flex align-items-center hover-light">
+            <i class="bi bi-arrow-left me-2"></i> Trở về danh sách
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="player-card">
+                <div class="card-header-bg">
+                    <div class="jersey-number">@Model.SoAo</div>
+
+                    <div class="avatar-container">
+                        <div class="avatar-img">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pt-5 px-4 pb-4 mt-3">
+
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h2 class="fw-bold mb-1">@Html.DisplayFor(model => model.HoTen)</h2>
+                            <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25">
+                                <i class="bi bi-person-badge me-1"></i> @Html.DisplayFor(model => model.ViTri)
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <div class="data-label">Chi nhánh quản lý</div>
+                            <div class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
+                                <i class="bi bi-hdd-network me-1"></i> @Html.DisplayFor(model => model.Node)
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary opacity-25 my-4" />
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02)">
+                                <h6 class="text-success fw-bold mb-3"><i class="bi bi-code-slash me-2"></i>Thông tin Hệ thống</h6>
+
+                                <div class="mb-3">
+                                    <div class="data-label">Mã Cầu Thủ (PK)</div>
+                                    <div class="data-value code-font">@Html.DisplayFor(model => model.MaCT)</div>
+                                </div>
+
+                                <div class="mb-0">
+                                    <div class="data-label">Thuộc Đội Bóng (FK)</div>
+                                    <div class="data-value code-font">@Html.DisplayFor(model => model.MaDB)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02)">
+                                <h6 class="text-white fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Thông tin Cá nhân</h6>
+
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <div class="data-label">Ngày sinh</div>
+                                        <div class="data-value">
+                                            @if (Model.NgaySinh.HasValue)
+                                            {
+                                                @Model.NgaySinh.Value.ToString("dd/MM/yyyy")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">N/A</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="data-label">Quốc tịch</div>
+                                        <div class="data-value">
+                                            <i class="bi bi-flag-fill text-secondary me-1"></i>
+                                            @Html.DisplayFor(model => model.QuocTich)
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-0">
+                                        <div class="data-label">Số Áo</div>
+                                        <div class="data-value">#@Html.DisplayFor(model => model.SoAo)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-outline-light-custom px-4 py-2 rounded-pill">
+                            Đóng
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model.MaCT" class="btn btn-pitch px-4 py-2 rounded-pill shadow-lg">
+                            <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa hồ sơ
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

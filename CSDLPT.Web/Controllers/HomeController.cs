@@ -19,7 +19,7 @@ namespace CSDLPT.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // 1. Lấy dữ liệu Biểu đồ (Giữ nguyên code cũ của bạn)
+           
             var sqlChart = @"
                 SELECT d.TenDB AS Label, COUNT(c.MaCT) AS Value
                 FROM v_CAUTHU c
@@ -27,7 +27,7 @@ namespace CSDLPT.Web.Controllers
                 GROUP BY d.TenDB
                 ORDER BY Value DESC";
 
-            // 2. FIX LỖI: Sử dụng Class cụ thể thay vì 'new { ... }'
+          
             var healthStatus = new List<NodeHealthModel> {
                 new NodeHealthModel { Node = "Node A (CN1)", IP = "100.107.211.71", Status = "Online" },
                 new NodeHealthModel { Node = "Node B (CN2)", IP = "100.87.218.25", Status = "Online" },
@@ -36,7 +36,7 @@ namespace CSDLPT.Web.Controllers
 
             using (var conn = _connectionFactory.CreateWriteConnection())
             {
-                // Query biểu đồ (Nếu chưa chạy được DB thì comment đoạn này lại để test giao diện trước)
+               
                 try
                 {
                     var chartData = await conn.QueryAsync<dynamic>(sqlChart);
@@ -69,7 +69,7 @@ namespace CSDLPT.Web.Controllers
         }
     }
 
-    // --- THÊM CLASS NÀY VÀO CUỐI FILE ---
+ 
     public class NodeHealthModel
     {
         public string Node { get; set; }

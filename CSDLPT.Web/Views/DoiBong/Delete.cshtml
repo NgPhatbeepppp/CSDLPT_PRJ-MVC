@@ -1,30 +1,166 @@
 ﻿@model CSDLPT.Web.Models.DoiBong
+
 @{
-    ViewData["Title"] = "Xóa đội bóng";
+    ViewData["Title"] = "Xóa Đội Bóng";
 }
-<h2>@ViewData["Title"]</h2>
 
-<h5>Bạn chắc chắn muốn xóa đội bóng này?</h5>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --accent-red: #ef4444; /* Red for Danger */
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+    }
 
-<div class="mb-3">
-    <strong>Mã DB:</strong> @Model.MaDB
-</div>
-<div class="mb-3">
-    <strong>Tên đội:</strong> @Model.TenDB
-</div>
-<div class="mb-3">
-    <strong>Mã sân:</strong> @Model.MaSan
-</div>
-<div class="mb-3">
-    <strong>HLV:</strong> @Model.HLV
-</div>
-<div class="mb-3">
-    <strong>CLB:</strong> @Model.CLB
-</div>
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<form asp-action="Delete" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="MaDB" />
-    <button type="submit" class="btn btn-danger">Xóa</button>
-    <a asp-action="Index" class="btn btn-link">Hủy</a>
-</form>
+    /* Card Styling */
+    .delete-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(239, 68, 68, 0.3); /* Red border tint */
+        border-radius: 16px;
+        box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.15);
+        overflow: hidden;
+    }
+
+    /* Warning Icon Animation */
+    .warning-icon-container {
+        width: 80px;
+        height: 80px;
+        background-color: rgba(239, 68, 68, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+        border: 2px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    /* Buttons */
+    .btn-danger-custom {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.5);
+        }
+
+    .btn-outline-secondary-custom {
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-secondary);
+        background: transparent;
+        padding: 0.75rem 1.5rem;
+    }
+
+        .btn-outline-secondary-custom:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+    .code-font {
+        font-family: 'Consolas', monospace;
+        color: #fca5a5; /* Light red for code */
+        background: rgba(239, 68, 68, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="delete-card p-4 p-md-5 text-center">
+
+                <div class="warning-icon-container">
+                    <i class="bi bi-trash3-fill text-danger fs-1"></i>
+                </div>
+
+                <h3 class="fw-bold mb-2">Xác nhận xóa?</h3>
+                <p class="text-secondary mb-4">
+                    Hành động này <span class="text-danger fw-bold">không thể hoàn tác</span>.
+                    Dữ liệu sẽ bị xóa vĩnh viễn khỏi hệ thống phân tán.
+                </p>
+
+                <div class="bg-body bg-opacity-50 rounded-3 p-3 mb-4 text-start border border-secondary border-opacity-25">
+                    <div class="info-row">
+                        <span class="info-label">Mã Đội Bóng</span>
+                        <span class="info-value code-font">@Html.DisplayFor(model => model.MaDB)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Tên Đội</span>
+                        <span class="info-value">@Html.DisplayFor(model => model.TenDB)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Site Sở Hữu</span>
+                        <span class="info-value text-danger">
+                            <i class="bi bi-hdd-network me-1"></i>@Html.DisplayFor(model => model.CLB)
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Sân Nhà</span>
+                        <span class="info-value">@Html.DisplayFor(model => model.MaSan)</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning bg-warning bg-opacity-10 border-warning border-opacity-25 text-warning d-flex align-items-center mb-4 text-start" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                    <div class="small">
+                        <strong>Lưu ý kỹ thuật:</strong> Lệnh xóa sẽ được định tuyến RPC về Server
+                        <strong>@(Model.CLB == "CLB1" ? "Node A" : (Model.CLB == "CLB2" ? "Node B" : "Node C"))</strong>.
+                    </div>
+                </div>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="MaDB" />
+
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-danger-custom rounded-pill">
+                            <i class="bi bi-trash me-2"></i>Xác nhận Xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary-custom rounded-pill">
+                            Quay lại, tôi đổi ý rồi
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

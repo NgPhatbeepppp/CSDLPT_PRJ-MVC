@@ -1,70 +1,219 @@
 ﻿@model CSDLPT.Web.Models.CauThu
 
 @{
-    ViewData["Title"] = "Chỉnh sửa Cầu thủ";
+    ViewData["Title"] = "Chỉnh sửa Hồ sơ";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --accent-green: #10b981;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+    }
 
-<h4>Cầu thủ</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-            @* Dùng hidden field để giữ giá trị MaCT khi POST *@
-            <input type="hidden" asp-for="MaCT" />
+    /* Card Styling */
+    .edit-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
 
-            <input type="hidden" asp-for="MaDB" />
-            <div class="form-group mb-3">
-                <label asp-for="MaCT" class="control-label"></label>
-                <input asp-for="MaCT" class="form-control" readonly />
+    /* Custom Input Styling for Dark Mode */
+    .form-control-dark {
+        background-color: #0f172a; /* Darker than card */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+
+    .form-control-dark:focus {
+        background-color: #0f172a;
+        border-color: var(--accent-green);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+    }
+
+    /* Readonly inputs style */
+    .form-control-dark[readonly], .form-control-dark[disabled] {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: transparent;
+        color: var(--text-secondary);
+        cursor: not-allowed;
+    }
+
+    .form-label-custom {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Button Styling */
+    .btn-pitch {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-pitch:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-outline-light-custom {
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-secondary);
+        background: transparent;
+    }
+    .btn-outline-light-custom:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+        background: rgba(255,255,255,0.05);
+    }
+
+    /* Section Divider */
+    .section-title {
+        color: var(--accent-green);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    .section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.1);
+        margin-left: 10px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="d-flex align-items-center mb-4">
+                <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                    <i class="bi bi-pencil-fill text-success fs-4"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0">Chỉnh sửa Cầu thủ</h2>
+                    <p class="text-secondary mb-0">Cập nhật thông tin hồ sơ</p>
+                </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="HoTen" class="control-label"></label>
-                <input asp-for="HoTen" class="form-control" />
-                <span asp-validation-for="HoTen" class="text-danger"></span>
-            </div>
+            <div class="edit-card p-4 p-md-5">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger mb-4"></div>
 
-            <div class="form-group mb-3">
-                <label asp-for="MaDB" class="control-label"></label>
-                @* Trường này giữ "disabled" để người dùng không thể sửa *@
-                <select asp-for="MaDB" class="form-control" asp-items="ViewBag.DoiBongList" disabled></select>
-                <span asp-validation-for="MaDB" class="text-danger"></span>
-            </div>
+                    @* Giữ lại Hidden fields để đảm bảo Post dữ liệu đúng *@
+                    <input type="hidden" asp-for="MaCT" />
+                    <input type="hidden" asp-for="MaDB" />
 
-            <div class="form-group mb-3">
-                <label asp-for="ViTri" class="control-label"></label>
-                <input asp-for="ViTri" class="form-control" />
-                <span asp-validation-for="ViTri" class="text-danger"></span>
+                    <div class="section-title">
+                        <i class="bi bi-shield-lock me-2"></i> Định danh hệ thống
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="MaCT" class="form-label-custom">Mã Cầu thủ</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                                    <i class="bi bi-upc-scan"></i>
+                                </span>
+                                <input asp-for="MaCT" class="form-control form-control-dark" readonly />
+                            </div>
+                            <small class="text-secondary fst-italic" style="font-size: 0.75rem">*Khóa chính - Không thể sửa</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MaDB" class="form-label-custom">Đội bóng chủ quản</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                                    <i class="bi bi-shield-shaded"></i>
+                                </span>
+                                @* Select disabled để hiển thị UI, value thật được submit qua hidden input ở trên *@
+                                <select asp-for="MaDB" class="form-control form-control-dark" asp-items="ViewBag.DoiBongList" disabled></select>
+                            </div>
+                            <span asp-validation-for="MaDB" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="section-title mt-5">
+                        <i class="bi bi-person-lines-fill me-2"></i> Thông tin cá nhân
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="HoTen" class="form-label-custom">Họ và Tên</label>
+                        <input asp-for="HoTen" class="form-control form-control-dark" placeholder="Nhập tên cầu thủ..." />
+                        <span asp-validation-for="HoTen" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="SoAo" class="form-label-custom">Số Áo</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">#</span>
+                                <input asp-for="SoAo" class="form-control form-control-dark" type="number" />
+                            </div>
+                            <span asp-validation-for="SoAo" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ViTri" class="form-label-custom">Vị Trí</label>
+                            <input asp-for="ViTri" class="form-control form-control-dark" list="viTriOptions" placeholder="VD: Tiền đạo" />
+
+                            <datalist id="viTriOptions">
+                                <option value="Thủ môn" />
+                                <option value="Hậu vệ" />
+                                <option value="Tiền vệ" />
+                                <option value="Tiền đạo" />
+                            </datalist>
+
+                            <span asp-validation-for="ViTri" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="NgaySinh" class="form-label-custom">Ngày Sinh</label>
+                            <input asp-for="NgaySinh" class="form-control form-control-dark" type="date" />
+                            <span asp-validation-for="NgaySinh" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="QuocTich" class="form-label-custom">Quốc Tịch</label>
+                            <input asp-for="QuocTich" class="form-control form-control-dark" />
+                            <span asp-validation-for="QuocTich" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 pt-3 border-top border-secondary border-opacity-25">
+                        <a asp-action="Index" class="btn btn-outline-light-custom px-4 rounded-pill">
+                            <i class="bi bi-x-lg me-2"></i>Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-pitch px-4 rounded-pill shadow">
+                            <i class="bi bi-check-lg me-2"></i>Lưu thay đổi
+                        </button>
+                    </div>
+
+                </form>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="NgaySinh" class="control-label"></label>
-                <input asp-for="NgaySinh" class="form-control" type="date" />
-                <span asp-validation-for="NgaySinh" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="SoAo" class="control-label"></label>
-                <input asp-for="SoAo" class="form-control" />
-                <span asp-validation-for="SoAo" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="QuocTich" class="control-label"></label>
-                <input asp-for="QuocTich" class="form-control" />
-                <span asp-validation-for="QuocTich" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Lưu thay đổi" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-outline-secondary">Trở về Danh sách</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

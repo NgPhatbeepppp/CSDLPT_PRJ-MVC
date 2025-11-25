@@ -4,49 +4,154 @@
     ViewData["Title"] = "Xóa Trận Đấu";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --danger-red: #ef4444;
+        --warning-bg: rgba(239, 68, 68, 0.1);
+    }
 
-<h3>Bạn có chắc chắn muốn xóa trận đấu này?</h3>
-<div>
-    <h4>Trận Đấu</h4>
-    <hr />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.MaTD)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.MaTD)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayThiDau)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.NgayThiDau)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.MaSan)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.MaSan)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LuotDau)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LuotDau)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.VongDau)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.VongDau)
-        </dd>
-    </dl>
+    /* Card Style - Giống trang Create nhưng viền đỏ cảnh báo */
+    .sport-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
 
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="MaTD" />
-        <input type="submit" value="Xác nhận Xóa" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
-    </form>
+        .sport-card.danger-zone {
+            border-left: 4px solid var(--danger-red);
+        }
+
+    .label-custom {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .value-custom {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .value-mono {
+        font-family: 'Consolas', 'Monaco', monospace;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: #fbbf24; /* Amber color for IDs */
+    }
+
+    .btn-danger-glow {
+        background-color: var(--danger-red);
+        border: none;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+        transition: transform 0.2s;
+    }
+
+        .btn-danger-glow:hover {
+            background-color: #dc2626;
+            transform: scale(1.02);
+        }
+
+    .technical-note {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-style: italic;
+        border-top: 1px dashed #334155;
+        margin-top: 1rem;
+        padding-top: 0.5rem;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle p-3 mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-trash3-fill fs-1"></i>
+                </div>
+                <h2 class="fw-bold text-white">Xác nhận Xóa Trận Đấu</h2>
+                <p class="text-secondary">
+                    Hành động này không thể hoàn tác. Dữ liệu sẽ bị xóa khỏi hệ thống phân tán.
+                </p>
+            </div>
+
+            <div class="sport-card danger-zone p-4 mb-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="label-custom">Mã Trận Đấu (Global ID)</div>
+                            <div class="value-custom value-mono">
+                                <i class="bi bi-key me-2"></i>@Html.DisplayFor(model => model.MaTD)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="label-custom">Sân / Node Sở Hữu</div>
+                            <div class="value-custom text-white">
+                                <i class="bi bi-geo-alt-fill me-2 text-danger"></i>@Html.DisplayFor(model => model.MaSan)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 border-top border-secondary border-opacity-25 my-2"></div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <div class="label-custom">Ngày Thi Đấu</div>
+                            <div class="value-custom">
+                                @Html.DisplayFor(model => model.NgayThiDau)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <div class="label-custom">Lượt Đấu</div>
+                            <div class="value-custom">@Html.DisplayFor(model => model.LuotDau)</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <div class="label-custom">Vòng Đấu</div>
+                            <div class="value-custom">@Html.DisplayFor(model => model.VongDau)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="technical-note">
+                    <i class="bi bi-hdd-network me-1"></i>
+                    <strong>System Note:</strong> Việc xóa này sẽ kích hoạt Trigger <code>tg_v_TRANDAU_DEL</code> trên Coordinator.
+                    Hệ thống sẽ định tuyến lệnh xóa về Node sở hữu sân <strong>@Model.MaSan</strong> thông qua Linked Server.
+                </div>
+            </div>
+
+            <form asp-action="Delete" class="d-flex justify-content-center gap-3">
+                <input type="hidden" asp-for="MaTD" />
+
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+                    <i class="bi bi-arrow-return-left me-2"></i>Hủy bỏ
+                </a>
+
+                <button type="submit" class="btn btn-danger-glow px-5 py-2 rounded-pill">
+                    <i class="bi bi-exclamation-octagon me-2"></i>Xác nhận Xóa
+                </button>
+            </form>
+
+        </div>
+    </div>
 </div>

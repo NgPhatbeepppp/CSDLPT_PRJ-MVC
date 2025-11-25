@@ -1,62 +1,174 @@
 ﻿@model CSDLPT.Web.Models.CauThu
 
 @{
-    ViewData["Title"] = "Tạo mới Cầu thủ";
+    ViewData["Title"] = "Thêm Mới Cầu Thủ";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-card: #1e293b; /* Slate 800 */
+        --input-bg: #334155; /* Slate 700 */
+        --input-border: #475569; /* Slate 600 */
+        --text-primary: #f1f5f9; /* Slate 50 */
+        --text-secondary: #94a3b8; /* Slate 400 */
+        --accent-green: #10b981; /* Emerald 500 */
+    }
 
-<h4>Cầu thủ</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    /* Style cho Card form */
+    .form-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        color: var(--text-primary);
+    }
 
-            @* KHÔNG CẦN TRƯỜNG NHẬP MaCT
-              Vì CSDL (Stored Procedure) sẽ tự động tạo MaCT
-            *@
+    /* Style cho Input/Select */
+    .form-control, .form-select {
+        background-color: var(--input-bg);
+        border: 1px solid var(--input-border);
+        color: var(--text-primary);
+    }
 
-            <div class="form-group mb-3">
-                <label asp-for="HoTen" class="control-label"></label>
-                <input asp-for="HoTen" class="form-control" />
-                <span asp-validation-for="HoTen" class="text-danger"></span>
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg);
+            border-color: var(--accent-green);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+    /* Floating label text color */
+    .form-floating > label {
+        color: var(--text-secondary);
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-select ~ label {
+        color: var(--accent-green);
+        background-color: transparent;
+    }
+
+    /* Fix background autofill của trình duyệt */
+    .form-control:-webkit-autofill {
+        -webkit-text-fill-color: var(--text-primary);
+        -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Button Gradient */
+    .btn-create {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: white;
+        }
+
+    .btn-back {
+        border: 1px solid var(--input-border);
+        color: var(--text-secondary);
+    }
+
+        .btn-back:hover {
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card form-card p-4">
+
+                <div class="d-flex align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+                    <div class="fs-2 me-3 text-success">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">Hồ Sơ Cầu Thủ Mới</h3>
+                        <small class="text-muted">Nhập thông tin chi tiết cầu thủ vào hệ thống phân tán</small>
+                    </div>
+                </div>
+
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <select asp-for="MaDB" class="form-select" asp-items="ViewBag.DoiBongList">
+                                    <option value="" disabled selected>-- Chọn Đội Bóng --</option>
+                                </select>
+                                <label asp-for="MaDB"><i class="bi bi-shield-shaded me-1"></i> Đội bóng chủ quản</label>
+                                <span asp-validation-for="MaDB" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="form-floating">
+                                <input asp-for="HoTen" class="form-control" placeholder="Nhập họ tên" />
+                                <label asp-for="HoTen"><i class="bi bi-person-badge me-1"></i> Họ và tên</label>
+                                <span asp-validation-for="HoTen" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <input asp-for="SoAo" class="form-control" placeholder="Số áo" />
+                                <label asp-for="SoAo"><i class="bi bi-hash me-1"></i> Số áo</label>
+                                <span asp-validation-for="SoAo" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="NgaySinh" class="form-control" type="date" />
+                                <label asp-for="NgaySinh"><i class="bi bi-calendar-event me-1"></i> Ngày sinh</label>
+                                <span asp-validation-for="NgaySinh" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="ViTri" class="form-control" placeholder="Vị trí sở trường" />
+                                <label asp-for="ViTri"><i class="bi bi-diagram-2 me-1"></i> Vị trí</label>
+                                <span asp-validation-for="ViTri" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input asp-for="QuocTich" class="form-control" placeholder="Quốc tịch" />
+                                <label asp-for="QuocTich"><i class="bi bi-globe-americas me-1"></i> Quốc tịch</label>
+                                <span asp-validation-for="QuocTich" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <a asp-action="Index" class="btn btn-back px-4 py-2">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-create px-4 py-2 shadow-sm">
+                            <i class="bi bi-check-lg"></i> Lưu Cầu Thủ
+                        </button>
+                    </div>
+
+                </form>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="MaDB" class="control-label"></label>
-                @* Dùng Dropdown list được cung cấp từ ViewBag *@
-                <select asp-for="MaDB" class="form-control" asp-items="ViewBag.DoiBongList">
-                    <option value="">-- Chọn Đội Bóng --</option>
-                </select>
-                <span asp-validation-for="MaDB" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="ViTri" class="control-label"></label>
-                <input asp-for="ViTri" class="form-control" />
-                <span asp-validation-for="ViTri" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="NgaySinh" class="control-label"></label>
-                <input asp-for="NgaySinh" class="form-control" type="date" />
-                <span asp-validation-for="NgaySinh" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="SoAo" class="control-label"></label>
-                <input asp-for="SoAo" class="form-control" />
-                <span asp-validation-for="SoAo" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="QuocTich" class="control-label"></label>
-                <input asp-for="QuocTich" class="form-control" />
-                <span asp-validation-for="QuocTich" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Tạo mới" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-outline-secondary">Trở về Danh sách</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 

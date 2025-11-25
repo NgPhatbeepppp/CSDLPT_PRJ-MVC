@@ -1,49 +1,219 @@
 ﻿@model CSDLPT.Web.Models.DoiBong
+
 @{
-    ViewData["Title"] = "Sửa đội bóng";
+    ViewData["Title"] = "Cập nhật Đội bóng";
 }
-<h2>@ViewData["Title"]</h2>
 
-<form asp-action="Edit" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --accent-green: #10b981;
+        --accent-amber: #f59e0b; /* Amber for Edit/Warning context */
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+    }
 
-    <!-- KHÓA: MaDB (không đổi) -->
-    <input type="hidden" asp-for="MaDB" />
-    <div class="mb-3">
-        <label class="form-label">Mã DB</label>
-        <input class="form-control" value="@Model.MaDB" disabled />
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Card Styling */
+    .edit-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Input Styling */
+    .form-control-dark {
+        background-color: #0f172a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+
+        .form-control-dark:focus {
+            background-color: #0f172a;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+            color: var(--text-primary);
+        }
+
+    /* Readonly / Locked Input Style */
+    .form-control-locked {
+        background-color: rgba(15, 23, 42, 0.5);
+        border-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+        font-family: 'Consolas', monospace; /* Tech font for Keys */
+        cursor: not-allowed;
+    }
+
+    .locked-icon {
+        background-color: rgba(255, 255, 255, 0.02);
+        border-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+    }
+
+    .form-label-custom {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Section Divider */
+    .section-title {
+        color: var(--accent-amber);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+    }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(245, 158, 11, 0.2);
+            margin-left: 10px;
+        }
+
+    /* Buttons */
+    .btn-pitch {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+
+        .btn-pitch:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+    .btn-outline-light-custom {
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-secondary);
+        background: transparent;
+    }
+
+        .btn-outline-light-custom:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="d-flex align-items-center mb-4">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3 border border-warning border-opacity-25">
+                    <i class="bi bi-pencil-square text-warning fs-4"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0">Cập nhật Đội Bóng</h2>
+                    <p class="text-secondary mb-0">Chỉnh sửa thông tin hoạt động</p>
+                </div>
+            </div>
+
+            <div class="edit-card p-4 p-md-5">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger mb-4"></div>
+
+                    <input type="hidden" asp-for="MaDB" />
+                    <input type="hidden" asp-for="CLB" />
+
+                    <div class="section-title">
+                        <i class="bi bi-server me-2"></i> Thông tin Định tuyến (Read-Only)
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label-custom">Mã Đội Bóng (PK)</label>
+                            <div class="input-group">
+                                <span class="input-group-text locked-icon"><i class="bi bi-key-fill"></i></span>
+                                <input class="form-control form-control-dark form-control-locked" value="@Model.MaDB" readonly />
+                                <span class="input-group-text locked-icon"><i class="bi bi-lock-fill"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Site Sở Hữu (Partition Key)</label>
+                            <div class="input-group">
+                                <span class="input-group-text locked-icon"><i class="bi bi-hdd-network"></i></span>
+                                <input class="form-control form-control-dark form-control-locked" value="@Model.CLB" readonly />
+                                <span class="input-group-text locked-icon"><i class="bi bi-lock-fill"></i></span>
+                            </div>
+                            <small class="text-secondary fst-italic mt-1 d-block" style="font-size: 0.75rem">
+                                <i class="bi bi-info-circle me-1"></i>Không thể đổi CLB do quy tắc phân mảnh.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="section-title text-success" style="--accent-amber: #10b981;">
+                        <i class="bi bi-sliders me-2"></i> Thông tin Hoạt động
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="TenDB" class="form-label-custom">Tên Đội Bóng</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                                <i class="bi bi-bookmark-star"></i>
+                            </span>
+                            <input asp-for="TenDB" class="form-control form-control-dark" placeholder="Nhập tên đội..." />
+                        </div>
+                        <span asp-validation-for="TenDB" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="MaSan" class="form-label-custom">Mã Sân Nhà</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                                    <i class="bi bi-geo-alt"></i>
+                                </span>
+                                <input asp-for="MaSan" class="form-control form-control-dark" placeholder="VD: SD1" />
+                            </div>
+                            <span asp-validation-for="MaSan" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="HLV" class="form-label-custom">Huấn Luyện Viên</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                                    <i class="bi bi-person-video3"></i>
+                                </span>
+                                <input asp-for="HLV" class="form-control form-control-dark" placeholder="Tên HLV..." />
+                            </div>
+                            <span asp-validation-for="HLV" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 pt-3 border-top border-secondary border-opacity-25">
+                        <a asp-action="Index" class="btn btn-outline-light-custom px-4 rounded-pill">
+                            <i class="bi bi-x-lg me-2"></i>Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-pitch px-4 rounded-pill shadow-lg">
+                            <i class="bi bi-check-lg me-2"></i>Lưu thay đổi
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Tên đội</label>
-        <input asp-for="TenDB" class="form-control" />
-        <span asp-validation-for="TenDB" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Mã sân</label>
-        <input asp-for="MaSan" class="form-control" />
-        <span asp-validation-for="MaSan" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">HLV</label>
-        <input asp-for="HLV" class="form-control" />
-        <span asp-validation-for="HLV" class="text-danger"></span>
-    </div>
-
-    <!-- KHÓA ĐỊNH TUYẾN: CLB (KHÔNG cho đổi) -->
-    <input type="hidden" asp-for="CLB" />
-    <div class="mb-3">
-        <label class="form-label">CLB</label>
-        <input class="form-control" value="@Model.CLB" disabled />
-        <div class="form-text">Không được đổi CLB (quy tắc sở hữu/định tuyến).</div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    <a asp-action="Index" class="btn btn-link">Hủy</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

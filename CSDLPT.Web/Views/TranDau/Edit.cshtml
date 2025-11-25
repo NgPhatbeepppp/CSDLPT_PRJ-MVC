@@ -4,70 +4,207 @@
     ViewData["Title"] = "Chỉnh sửa Trận Đấu";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --input-bg: #334155;
+        --input-border: #475569;
+        --input-disabled: #1e293b;
+        --accent-green: #10b981;
+        --accent-amber: #f59e0b; /* Màu cảnh báo cho khóa chính */
+    }
 
-<h4>Trận Đấu</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    /* Form Styles */
+    .form-control, .form-select {
+        background-color: var(--input-bg);
+        border: 1px solid var(--input-border);
+        color: var(--text-primary);
+        border-radius: 8px;
+        padding: 10px 15px;
+    }
 
-            <div class="form-group">
-                <label asp-for="MaTD" class="control-label"></label>
-                <input asp-for="MaTD" class="form-control" readonly />
-            </div>
+        .form-control:focus, .form-select:focus {
+            background-color: #0f172a;
+            border-color: var(--accent-green);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
 
-            <div class="form-group">
-                <label asp-for="NgayThiDau" class="control-label"></label>
-                <input asp-for="NgayThiDau" class="form-control" type="datetime-local" />
-                <span asp-validation-for="NgayThiDau" class="text-danger"></span>
-            </div>
+        /* Disabled Input Style - Nhấn mạnh tính bất biến */
+        .form-control:disabled, .form-select:disabled, .form-control[readonly] {
+            background-color: var(--input-disabled);
+            border-color: rgba(255,255,255,0.05);
+            color: #64748b; /* Slate 500 */
+            cursor: not-allowed;
+            font-style: italic;
+        }
 
-            <div class="form-group">
-                <label asp-for="MaSan" class="control-label"></label>
-                <select asp-for="MaSan" class="form-control" asp-items="ViewBag.MaSanList" disabled>
-                </select>
-                <input type="hidden" asp-for="MaSan" />
-                <span asp-validation-for="MaSan" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LuotDau" class="control-label"></label>
-                <input asp-for="LuotDau" class="form-control" type="number" />
-                <span asp-validation-for="LuotDau" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VongDau" class="control-label"></label>
-                <input asp-for="VongDau" class="form-control" type="number" />
-                <span asp-validation-for="VongDau" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaDoiNha" class="control-label"></label>
-                <select asp-for="MaDoiNha" class="form-control" asp-items="ViewBag.DoiNhaList">
-                    <option value="">-- Chọn Đội Nhà --</option>
-                </select>
-                <span asp-validation-for="MaDoiNha" class="text-danger"></span>
-            </div>
+    .form-label {
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
 
-            <div class="form-group">
-                <label asp-for="MaDoiKhach" class="control-label"></label>
-                <select asp-for="MaDoiKhach" class="form-control" asp-items="ViewBag.DoiKhachList">
-                    <option value="">-- Chọn Đội Khách --</option>
-                </select>
-                <span asp-validation-for="MaDoiKhach" class="text-danger"></span>
-            </div>
+    .sport-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
 
-            <br />
-            <div class="form-group">
-                <input type="submit" value="Lưu" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
-            </div>
-        </form>
+    .card-header-custom {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+
+    /* ID Badge Style */
+    .id-badge {
+        font-family: 'Consolas', monospace;
+        color: var(--accent-amber);
+        letter-spacing: 1px;
+    }
+
+    .btn-save-glow {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        transition: all 0.3s;
+    }
+
+        .btn-save-glow:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-white mb-1">
+                <i class="bi bi-pencil-square text-warning me-2"></i>Chỉnh sửa Trận Đấu
+            </h2>
+            <p class="text-secondary mb-0">Cập nhật thông tin lịch thi đấu và đội hình</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Quay lại
+        </a>
     </div>
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 text-danger border-danger"></div>
+
+        <input type="hidden" asp-for="MaTD" />
+        <input type="hidden" asp-for="MaSan" />
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="sport-card p-4 h-100">
+                    <div class="card-header-custom">
+                        <h5 class="text-white fw-bold m-0"><i class="bi bi-hdd-rack me-2 text-warning"></i>Dữ Liệu Hệ Thống</h5>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MaTD" class="form-label">Mã Trận Đấu (Global ID)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-key"></i></span>
+                            <input asp-for="MaTD" class="form-control id-badge" disabled />
+                        </div>
+                        <div class="form-text text-secondary small">Khóa chính - Không thể thay đổi.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MaSan" class="form-label">Sân Vận Động (Owner Node)</label>
+                        <select asp-for="MaSan" class="form-select" asp-items="ViewBag.MaSanList" disabled></select>
+                        <div class="alert alert-warning bg-opacity-10 border-0 p-2 mt-2 d-flex align-items-start">
+                            <i class="bi bi-shield-lock-fill text-warning me-2 mt-1"></i>
+                            <span class="small text-secondary" style="font-size: 0.8rem">
+                                <strong>Lưu ý:</strong> Không thể đổi Sân vì sẽ vi phạm nguyên tắc phân mảnh (Ownership Key). Dữ liệu này thuộc về Node hiện tại.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="sport-card p-4 h-100">
+                    <div class="card-header-custom">
+                        <h5 class="text-white fw-bold m-0"><i class="bi bi-calendar-check me-2 text-success"></i>Thông Tin Thi Đấu</h5>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="NgayThiDau" class="form-label">Ngày Giờ Thi Đấu</label>
+                        <input asp-for="NgayThiDau" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="NgayThiDau" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="LuotDau" class="form-label">Lượt Đấu</label>
+                            <input asp-for="LuotDau" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="LuotDau" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="VongDau" class="form-label">Vòng Đấu</label>
+                            <input asp-for="VongDau" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="VongDau" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded mb-4" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1)">
+                        <label class="form-label text-white mb-3"><i class="bi bi-people-fill me-2"></i>Cập nhật Đội Hình</label>
+                        <div class="row align-items-center">
+                            <div class="col-md-5">
+                                <label asp-for="MaDoiNha" class="text-secondary small mb-1">Đội Nhà</label>
+                                <select asp-for="MaDoiNha" class="form-select" asp-items="ViewBag.DoiNhaList">
+                                    <option value="">-- Chọn Đội --</option>
+                                </select>
+                                <span asp-validation-for="MaDoiNha" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-2 text-center text-muted fw-bold fst-italic py-2">VS</div>
+
+                            <div class="col-md-5">
+                                <label asp-for="MaDoiKhach" class="text-secondary small mb-1">Đội Khách</label>
+                                <select asp-for="MaDoiKhach" class="form-select" asp-items="ViewBag.DoiKhachList">
+                                    <option value="">-- Chọn Đội --</option>
+                                </select>
+                                <span asp-validation-for="MaDoiKhach" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end border-top border-secondary border-opacity-25 pt-3">
+                        <button type="submit" class="btn btn-save-glow rounded-pill px-5 fw-bold">
+                            <i class="bi bi-save me-2"></i>Lưu Thay Đổi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // UX: Ngăn chọn trùng đội (Client-side validation)
+        $(document).ready(function() {
+            $('select[name="MaDoiNha"], select[name="MaDoiKhach"]').change(function() {
+                var home = $('select[name="MaDoiNha"]').val();
+                var away = $('select[name="MaDoiKhach"]').val();
+
+                if(home && away && home === away) {
+                    alert('Lỗi: Đội nhà và Đội khách không được trùng nhau.');
+                    $(this).val(''); // Reset
+                }
+            });
+        });
+    </script>
 }

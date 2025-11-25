@@ -112,6 +112,44 @@
                             </a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            var siteClaim = User.Claims.FirstOrDefault(c => c.Type == "SourceSite")?.Value;
+                            var roleClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+
+                            // Tạo label hiển thị cho đẹp
+                            string siteDisplay = siteClaim switch
+                            {
+                                "SiteA" => "CN1 (Node A)",
+                                "SiteB" => "CN2 (Node B)",
+                                "SiteC" => "CONG TY (Node C)",
+                                _ => "Coordinator"
+                            };
+
+                            <li class="nav-item d-flex align-items-center me-3">
+                                <div class="text-white border-end pe-3 me-3 text-end" style="line-height: 1.2;">
+                                    <span class="d-block fw-bold">
+                                        <i class="bi bi-person-circle"></i> @User.Identity.Name
+                                    </span>
+                                    <small class="badge bg-warning text-dark">@siteDisplay</small>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-light btn-sm fw-bold"
+                                   asp-controller="Account"
+                                   asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>

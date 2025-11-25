@@ -1,54 +1,142 @@
 ﻿@model CSDLPT.Web.Models.CauThu
 
 @{
-    ViewData["Title"] = "Xóa Cầu thủ";
+    ViewData["Title"] = "Xóa Cầu Thủ";
 }
 
-<h1>@ViewData["Title"]</h1>
+<style>
+    :root {
+        --bg-card: #1e293b; /* Slate 800 */
+        --text-primary: #f1f5f9; /* Slate 50 */
+        --text-secondary: #94a3b8; /* Slate 400 */
+        --danger-red: #ef4444; /* Red 500 */
+        --danger-bg: rgba(239, 68, 68, 0.1);
+    }
 
-@* Hiển thị thông báo (nếu có lỗi xóa) *@
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @TempData["ErrorMessage"]
+    .delete-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(239, 68, 68, 0.3); /* Viền đỏ nhẹ cảnh báo */
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        color: var(--text-primary);
+        overflow: hidden;
+    }
+
+    .warning-header {
+        background-color: var(--danger-bg);
+        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        color: var(--danger-red);
+        margin-bottom: 1rem;
+    }
+
+    .detail-label {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding-bottom: 0.5rem;
+    }
+
+    .btn-delete {
+        background-color: var(--danger-red);
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+        .btn-delete:hover {
+            background-color: #dc2626; /* Red 600 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+    .btn-cancel {
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+        .btn-cancel:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+</style>
+
+<div class="container py-5" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div class="col-md-6 col-lg-5">
+
+        <div class="card delete-card">
+
+            <div class="warning-header">
+                <div class="warning-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h3 class="fw-bold text-danger mb-2">Xác nhận Xóa</h3>
+                <p class="text-muted mb-0">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa cầu thủ này khỏi hệ thống?</p>
+            </div>
+
+            <div class="card-body p-4">
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-x-circle-fill me-2"></i>
+                        <div>@TempData["ErrorMessage"]</div>
+                    </div>
+                }
+
+                <div class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="detail-label">Mã Cầu Thủ</div>
+                            <div class="detail-value">@Html.DisplayFor(model => model.MaCT)</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="detail-label">Chi Nhánh (Node)</div>
+                            <div class="detail-value">
+                                <span class="badge bg-secondary text-light">@Html.DisplayFor(model => model.Node)</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="detail-label">Họ và Tên</div>
+                            <div class="detail-value text-warning">@Html.DisplayFor(model => model.HoTen)</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="detail-label">Đội Bóng Chủ Quản</div>
+                            <div class="detail-value">@Html.DisplayFor(model => model.MaDB)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" class="d-grid gap-2">
+                    <input type="hidden" asp-for="MaCT" />
+
+                    <button type="submit" class="btn btn-delete btn-lg py-3">
+                        <i class="bi bi-trash3-fill me-2"></i> XÓA CẦU THỦ
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-cancel py-2 mt-2">
+                        <i class="bi bi-x-lg me-1"></i> Hủy bỏ, quay lại danh sách
+                    </a>
+                </form>
+
+            </div>
+        </div>
+
     </div>
-}
-
-<h3>Bạn có chắc chắn muốn xóa cầu thủ này?</h3>
-<div>
-    <h4>Cầu thủ</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.MaCT)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.MaCT)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.HoTen)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.HoTen)
-        </dd>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.MaDB)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.MaDB)
-            </S>
-        <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.Node)
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Node)
-        </dd>
-    </dl>
-
-    <form asp-action="Delete">
-        @* Dùng hidden field để POST MaCT về Controller *@
-        <input type="hidden" asp-for="MaCT" />
-        <input type="submit" value="Xác nhận Xóa" class="btn btn-danger" /> |
-        <a asp-action="Index">Hủy và Trở về Danh sách</a>
-    </form>
 </div>

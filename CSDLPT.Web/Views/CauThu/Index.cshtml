@@ -2,98 +2,310 @@
 
 @{
     ViewData["Title"] = "Danh sách Cầu thủ";
-    // 1. Đọc trạng thái (local/global) từ Controller
     bool isGlobalView = (ViewData["IsGlobalView"] as bool?) ?? false;
 }
 
-<h1>@ViewData["Title"]</h1>
-
-@* Hiển thị thông báo (nếu có) *@
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["SuccessMessage"]
-    </div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-warning" role="alert">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Tạo mới Cầu thủ</a>
-</p>
-
-@* Nút chuyển đổi Local/Global *@
-<div class="mb-3">
-    @if (isGlobalView)
-    {
-        <span class="alert alert-info p-2" role="alert">
-            <strong>Chế độ xem:</strong> Toàn cục (Tất cả Node)
-        </span>
-        <a asp-action="Index" asp-route-showGlobal="false" class="btn btn-outline-secondary ml-2">
-            Xem Dữ liệu Cục bộ
-        </a>
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --accent-green: #10b981;
+        --accent-blue: #3b82f6;
+        --table-hover: rgba(255, 255, 255, 0.03);
+        --border-color: rgba(255, 255, 255, 0.05);
     }
-    else
-    {
-        <span class="alert alert-success p-2" role="alert">
-            <strong>Chế độ xem:</strong> Cục bộ (Node Mặc định)
-        </span>
-        <a asp-action="Index" asp-route-showGlobal="true" class="btn btn-primary ml-2">
-            Tải Dữ liệu Toàn cục
-        </a>
-    }
-</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaCT)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HoTen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ViTri)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaDB)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Node)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MaCT)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HoTen)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ViTri)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MaDB)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Node)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.MaCT">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.MaCT">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.MaCT">Delete</a>
-                </td>
-            </tr>
+    /* Toggle Switch Style */
+    .view-toggle {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        padding: 4px;
+        display: inline-flex;
+        position: relative;
+    }
+
+        .view-toggle a {
+            padding: 8px 20px;
+            border-radius: 50px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-    </tbody>
-</table>
+
+            .view-toggle a:hover {
+                color: var(--text-primary);
+            }
+
+            .view-toggle a.active {
+                background-color: var(--accent-blue);
+                color: white;
+                box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+            }
+
+                .view-toggle a.active.local-mode {
+                    background-color: #64748b; /* Slate for Local */
+                    box-shadow: 0 2px 10px rgba(100, 116, 139, 0.4);
+                }
+
+    /* Table Styles */
+    .sport-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--text-primary);
+    }
+
+        .table-custom thead th {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: var(--table-hover);
+        }
+
+    /* Player Avatar */
+    .player-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #475569, #334155);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-right: 12px;
+    }
+
+    /* Badges */
+    .badge-pos {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-node {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--accent-blue);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: 'Consolas', monospace;
+        font-size: 0.75rem;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        color: var(--text-secondary);
+        background: rgba(255,255,255,0.05);
+    }
+
+        .action-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            color: var(--accent-blue);
+        }
+
+        .action-btn.delete:hover {
+            color: #ef4444;
+        }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold text-white mb-1">
+                <i class="bi bi-people-fill text-success me-2"></i>Quản lý Cầu Thủ
+            </h2>
+            <p class="text-secondary mb-0">Hồ sơ cầu thủ và phân bổ đội bóng</p>
+        </div>
+
+        <div class="d-flex gap-3 align-items-center">
+            <div class="view-toggle">
+                <a asp-action="Index" asp-route-showGlobal="false"
+                   class="@(!isGlobalView ? "active local-mode" : "")">
+                    <i class="bi bi-hdd"></i> Local
+                </a>
+                <a asp-action="Index" asp-route-showGlobal="true"
+                   class="@(isGlobalView ? "active" : "")">
+                    <i class="bi bi-globe"></i> Global
+                </a>
+            </div>
+
+            <a asp-action="Create" class="btn btn-create rounded-pill px-4 fw-bold py-2">
+                <i class="bi bi-plus-lg me-1"></i> Thêm Mới
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 d-flex align-items-center mb-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger bg-danger bg-opacity-10 text-danger border-danger border-opacity-25 d-flex align-items-center mb-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <div>@TempData["ErrorMessage"]</div>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="sport-card shadow-lg">
+        <div class="table-responsive">
+            <table class="table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Họ Tên / Mã Cầu Thủ</th>
+                        <th>Vị Trí</th>
+                        <th>Thuộc Đội (MaDB)</th>
+                        <th>Nguồn Dữ Liệu (Node)</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="player-avatar shadow-sm">
+                                            @{
+                                                var initials = string.IsNullOrEmpty(item.HoTen) ? "?" : item.HoTen.Substring(0, 1).ToUpper();
+                                            }
+                                            @initials
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-white">@Html.DisplayFor(modelItem => item.HoTen)</div>
+                                            <div class="small text-secondary font-monospace" style="font-size: 0.75rem;">
+                                                <i class="bi bi-upc-scan me-1"></i>@Html.DisplayFor(modelItem => item.MaCT)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-pos">
+                                        @Html.DisplayFor(modelItem => item.ViTri)
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="text-light fw-medium">
+                                        <i class="bi bi-shield-shaded me-1 text-secondary"></i>
+                                        @Html.DisplayFor(modelItem => item.MaDB)
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Node))
+                                    {
+                                        <span class="badge-node">
+                                            <i class="bi bi-server me-1"></i>@item.Node.Trim()
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small fst-italic">Local</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a asp-action="Details" asp-route-id="@item.MaCT" class="action-btn" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaCT" class="action-btn edit" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaCT" class="action-btn delete" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-secondary opacity-50">
+                                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                    <span>Không tìm thấy dữ liệu cầu thủ nào.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="px-4 py-3 border-top border-secondary border-opacity-10 bg-dark bg-opacity-25 d-flex justify-content-between align-items-center">
+            <small class="text-secondary">
+                <i class="bi bi-info-circle me-1"></i>
+                [cite_start]@if (isGlobalView) {
+                <span>Đang hiển thị dữ liệu từ toàn bộ hệ thống (Site A, B, C) [cite: 56, 129]</span>
+                                }
+                                else
+                {
+
+                    <span>Đang hiển thị dữ liệu cục bộ tại Node này.</span>
+                }
+            </small>
+            <small class="text-secondary font-monospace">Total: @Model.Count() records</small>
+        </div>
+    </div>
+</div>
