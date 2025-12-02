@@ -6,6 +6,23 @@
 }
 
 <style>
+    /* Style cho Form tìm kiếm */
+    .search-input {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: var(--text-primary) !important;
+    }
+
+        .search-input:focus {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            border-color: var(--accent-green) !important;
+            box-shadow: none !important;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
     :root {
         --bg-body: #0f172a; /* Deep Navy */
         --bg-card: #1e293b; /* Slate 800 */
@@ -151,10 +168,36 @@
                 <div class="col-lg-4">
                     <div class="sport-card h-100 bg-gradient-to-b from-gray-800 to-gray-900">
                         <div class="card-body p-4">
-                            <h5 class="fw-bold text-white mb-4">Chức năng</h5>
+
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-white mb-3">
+                                    <i class="bi bi-search text-success me-2"></i>Tra cứu nhanh
+                                </h5>
+                                <form asp-controller="CauThu" asp-action="TraCuu" method="post">
+                                    <div class="mb-1">
+                                        <label class="text-secondary small mb-2">Nhập tên cầu thủ tra cứu thông tin:</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control search-input rounded-start"
+                                                   name="tuKhoaTen"
+                                                   placeholder="VD: ...Antonio Rüdiger" required>
+                                            <button class="btn btn-pitch px-3" type="submit">
+                                                <i class="bi bi-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <hr class="border-secondary opacity-25 my-4">
+
+                            <h5 class="fw-bold text-white mb-3">
+                                <i class="bi bi-grid-fill text-success me-2"></i>Menu Quản lý
+                            </h5>
 
                             <a asp-controller="DoiBong" asp-action="Index" class="d-flex align-items-center text-white text-decoration-none mb-3 p-3 rounded quick-link-item" style="background: rgba(255,255,255,0.05)">
-                                <i class="bi bi-shield-shaded fs-4 me-3 text-success"></i>
+                                <div class="bg-dark bg-opacity-50 p-2 rounded me-3 text-success">
+                                    <i class="bi bi-shield-shaded fs-5"></i>
+                                </div>
                                 <div>
                                     <h6 class="mb-0 fw-bold">Đội Bóng</h6>
                                     <small class="text-secondary">Quản lý các CLB</small>
@@ -163,7 +206,9 @@
                             </a>
 
                             <a asp-controller="CauThu" asp-action="Index" class="d-flex align-items-center text-white text-decoration-none mb-3 p-3 rounded quick-link-item" style="background: rgba(255,255,255,0.05)">
-                                <i class="bi bi-people-fill fs-4 me-3 text-success"></i>
+                                <div class="bg-dark bg-opacity-50 p-2 rounded me-3 text-success">
+                                    <i class="bi bi-people-fill fs-5"></i>
+                                </div>
                                 <div>
                                     <h6 class="mb-0 fw-bold">Cầu Thủ</h6>
                                     <small class="text-secondary">Hồ sơ & Chuyển nhượng</small>
@@ -172,18 +217,24 @@
                             </a>
 
                             <a asp-controller="TranDau" asp-action="Index" class="d-flex align-items-center text-white text-decoration-none p-3 rounded quick-link-item" style="background: rgba(255,255,255,0.05)">
-                                <i class="bi bi-calendar-event fs-4 me-3 text-success"></i>
+                                <div class="bg-dark bg-opacity-50 p-2 rounded me-3 text-success">
+                                    <i class="bi bi-calendar-event fs-5"></i>
+                                </div>
                                 <div>
                                     <h6 class="mb-0 fw-bold">Lịch Thi Đấu</h6>
                                     <small class="text-secondary">Cập nhật kết quả</small>
                                 </div>
                                 <i class="bi bi-chevron-right ms-auto text-secondary"></i>
                             </a>
+
+                            <div class="mt-4 text-center">
+                                <a asp-controller="CauThu" asp-action="TraCuu" class="text-secondary small text-decoration-none hover-text-green">
+                                    Đến trang tra cứu nâng cao <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
         </div>
     </div>
 </div>

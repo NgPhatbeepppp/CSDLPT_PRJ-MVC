@@ -17,5 +17,7 @@ namespace CSDLPT.Web.Repositories
         Task<int> CreateAsync(CauThu cauThu);
         Task<int> UpdateAsync(CauThu cauThu);
         Task<int> DeleteAsync(string id);
+
+        Task<IEnumerable<LichSuThiDauViewModel>> TraCuuLichSu(string tenCauThu);
     }
 }

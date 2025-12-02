@@ -139,7 +139,7 @@ namespace CSDLPT.Web.Controllers
 
         // POST: /CauThu/Delete/A_CT01
         [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id) // Bỏ các tham số không dùng
+        public async Task<IActionResult> DeleteConfirmed(string id) 
         {
             try
             {
@@ -178,6 +178,34 @@ namespace CSDLPT.Web.Controllers
                 ViewBag.DoiBongList = new SelectList(new List<DoiBong>(), "MaDB", "TenDB");
                 ModelState.AddModelError("", $"Lỗi tải danh sách đội bóng: {ex.Message}");
             }
+        }
+        // GET: Hiển thị trang tìm kiếm
+        [HttpGet]
+        public IActionResult TraCuu()
+        {
+            return View();
+        }
+
+        // POST: Nhận dữ liệu từ form và xử lý
+        [HttpPost]
+        public async Task<IActionResult> TraCuu(string tuKhoaTen)
+        {
+            if (string.IsNullOrWhiteSpace(tuKhoaTen))
+            {
+                ViewBag.Error = "Vui lòng nhập tên cầu thủ!";
+                return View(new List<LichSuThiDauViewModel>()); // Trả về list rỗng để tránh lỗi null
+            }
+
+            // 1. Gọi Repo lấy danh sách
+            var danhSachTran = await _repo.TraCuuLichSu(tuKhoaTen);
+
+            // 2. Tính toán thống kê tổng quan (để hiển thị con số to đẹp)
+            ViewBag.TongSoTran = danhSachTran.Count();
+            ViewBag.TongBanThang = danhSachTran.Sum(x => x.SoBanThang);
+            ViewBag.TuKhoa = tuKhoaTen;
+
+            // 3. Trả về View kèm Model là danh sách
+            return View(danhSachTran);
         }
     }
 }

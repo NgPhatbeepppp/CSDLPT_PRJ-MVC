@@ -2,19 +2,27 @@
 
 @{
     ViewData["Title"] = "Danh sách Cầu thủ";
+   // Kiểm tra trạng thái xem Global hay Local 
     bool isGlobalView = (ViewData["IsGlobalView"] as bool?) ?? false;
 }
 
 <style>
     :root {
-        --bg-body: #0f172a;
-        --bg-card: #1e293b;
+        --bg-body: #0f172a; /* Deep Navy */
+        --bg-card: #1e293b; /* Slate 800 */
         --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
-        --accent-green: #10b981;
+        --accent-green: #10b981; /* Emerald 500 */
         --accent-blue: #3b82f6;
         --table-hover: rgba(255, 255, 255, 0.03);
         --border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* === SỬA LỖI TẠI ĐÂY: Áp dụng màu nền cho body === */
+    body {
+        background-color: var(--bg-body) !important; /* !important để ghi đè style của _Layout nếu có */
+        color: var(--text-primary) !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     /* Toggle Switch Style */
@@ -145,6 +153,7 @@
         transition: all 0.2s;
         color: var(--text-secondary);
         background: rgba(255,255,255,0.05);
+        text-decoration: none; /* Fix gạch chân */
     }
 
         .action-btn:hover {
@@ -171,14 +180,14 @@
         </div>
 
         <div class="d-flex gap-3 align-items-center">
-            <div class="view-toggle">
+            <div class="view-toggle shadow-sm">
                 <a asp-action="Index" asp-route-showGlobal="false"
                    class="@(!isGlobalView ? "active local-mode" : "")">
-                    <i class="bi bi-hdd"></i> Local
+                    <i class="bi bi-hdd-network"></i> Local
                 </a>
                 <a asp-action="Index" asp-route-showGlobal="true"
                    class="@(isGlobalView ? "active" : "")">
-                    <i class="bi bi-globe"></i> Global
+                    <i class="bi bi-globe2"></i> Global
                 </a>
             </div>
 
@@ -296,16 +305,16 @@
         <div class="px-4 py-3 border-top border-secondary border-opacity-10 bg-dark bg-opacity-25 d-flex justify-content-between align-items-center">
             <small class="text-secondary">
                 <i class="bi bi-info-circle me-1"></i>
-                [cite_start]@if (isGlobalView) {
-                <span>Đang hiển thị dữ liệu từ toàn bộ hệ thống (Site A, B, C) [cite: 56, 129]</span>
-                                }
-                                else
+                @if (isGlobalView)
                 {
-
+                < span > Đang hiển thị dữ liệu từ toàn bộ hệ thống(Site A, B, C)[cite: 56] </ span >
+                }
+                else
+                {
                     <span>Đang hiển thị dữ liệu cục bộ tại Node này.</span>
                 }
             </small>
-            <small class="text-secondary font-monospace">Total: @Model.Count() records</small>
+            <small class="text-secondary font-monospace">Total: @(Model != null ? Model.Count() : 0) records</small>
         </div>
     </div>
 </div>

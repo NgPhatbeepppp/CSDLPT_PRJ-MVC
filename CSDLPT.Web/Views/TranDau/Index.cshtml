@@ -14,10 +14,18 @@
         --text-secondary: #94a3b8;
     }
 
+  
     body {
-        background-color: var(--bg-body);
+        background-color: var(--bg-body) !important;
         color: var(--text-primary);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* 2. FIX FOOTER: Đảm bảo chiều cao tối thiểu cho vùng nội dung */
+    .main-content-wrapper {
+        min-height: 85vh; /* Chiếm tối thiểu 85% chiều cao màn hình */
+        display: flex;
+        flex-direction: column;
     }
 
     /* Dashboard Header */
@@ -34,6 +42,7 @@
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         overflow: hidden;
+        flex-grow: 1; /* Cho phép bảng giãn ra nếu cần */
     }
 
     /* Custom Table Styles */
@@ -143,7 +152,7 @@
 
 </style>
 
-<div class="container-fluid py-4 px-md-5">
+<div class="container-fluid py-4 px-md-5 main-content-wrapper">
 
     <div class="d-flex justify-content-between align-items-center page-header">
         <div>

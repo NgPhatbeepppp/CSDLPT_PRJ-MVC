@@ -152,6 +152,7 @@ namespace CSDLPT.Web.Controllers
         // POST: TranDau/Delete/TD01
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             try
@@ -161,11 +162,26 @@ namespace CSDLPT.Web.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Lỗi khi xóa: {ex.Message}. (Có thể do còn Cầu thủ tham gia?)";
-                return RedirectToAction(nameof(Delete), new { id = id });
+                // --- SỬA ĐỔI Ở ĐÂY ---
+
+                // 1. Lấy thông báo lỗi chi tiết nhất
+                string errorMsg = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMsg += " | Chi tiết: " + ex.InnerException.Message;
+                }
+
+                // 2. Gán vào ViewBag hoặc ModelState để hiện ra View
+                ViewBag.ErrorMessage = $"Lỗi xóa trận đấu: {errorMsg}";
+                ModelState.AddModelError("", ViewBag.ErrorMessage);
+
+                // 3. Load lại thông tin trận đấu để hiển thị lại trang Delete (KHÔNG Redirect)
+                var tranDau = await _tranDauRepo.GetByIdAsync(id);
+                if (tranDau == null) return NotFound(); // Trường hợp hy hữu nếu ID sai
+
+                return View(tranDau);
             }
         }
-
         // GET: TranDau/Details/TD01
         // GET: TranDau/Details/TD01
         public async Task<IActionResult> Details(string id)

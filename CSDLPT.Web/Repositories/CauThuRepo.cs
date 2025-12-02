@@ -143,5 +143,22 @@ namespace CSDLPT.Web.Repositories
                 return conn.Query<CauThu>(query, new { MaDB = maDB });
             }
         }
+        public async Task<IEnumerable<LichSuThiDauViewModel>> TraCuuLichSu(string tenCauThu)
+        {
+            using (var conn = _connectionFactory.CreateWriteConnection())
+            {
+                var p = new DynamicParameters();
+                p.Add("@HoTen", tenCauThu);
+
+                // Dùng QueryAsync thay vì ExecuteScalarAsync
+                var result = await conn.QueryAsync<LichSuThiDauViewModel>(
+                    "sp_TraCuuLichSuThiDau",
+                    p,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
     }
 }
